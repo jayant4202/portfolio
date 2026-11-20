@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <!-- TEMPLATE: copy this file to add a case study or assignment. Update title, description, canonical, and content. -->
+  <title>AI Transaction Categorization for a Neobank — Case Study | Jayant Goswami</title>
+  <meta name="description" content="How an LLM + rules hybrid reduced miscategorized transactions by 38% and support tickets by 22% at a neobank.">
+  <link rel="canonical" href="https://YOUR-DOMAIN.com/case-studies/ai-transaction-categorization.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Case study: AI transaction categorization">
+  <meta property="og:description" content="LLM + rules hybrid: -38% mis-tags, -22% support tickets.">
+  <meta property="og:image" content="https://YOUR-DOMAIN.com/assets/img/og-image.png">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <script src="/assets/js/theme.js"></script>
+  <script src="/assets/js/main.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <nav class="container nav" aria-label="Main">
+      <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">JG</span>Jayant Goswami</a>
+      <ul class="nav-links">
+        <li><a href="/work.html" aria-current="page">Work</a></li>
+        <li><a href="/demos.html">Demos</a></li>
+        <li><a href="/about.html">About</a></li>
+        <li><a href="/assets/Jayant-Goswami-Resume.pdf" download>Resume</a></li>
+        <li class="nav-mobile-only"><a href="https://www.linkedin.com/in/jayant-goswami/" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a class="btn btn-primary btn-sm" href="https://www.linkedin.com/in/jayant-goswami/" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
+        <button class="icon-btn" type="button" data-theme-toggle aria-label="Toggle dark mode">◐</button>
+        <button class="icon-btn menu-toggle" type="button" data-menu-toggle aria-label="Open menu" aria-expanded="false">☰</button>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <article class="article">
+      <a class="back" href="/work.html">← All work</a>
+      <h1>AI transaction categorization for a neobank</h1>
+      <p class="lede">Sample case study — replace every section with your own story. Keep the structure: it's what hiring managers scan for.</p>
+
+      <div class="summary">
+        <div><b>Role</b>Product Manager</div>
+        <div><b>Timeline</b>Q1–Q2 2026</div>
+        <div><b>Team</b>2 eng, 1 DS, 1 design</div>
+        <div><b>Outcome</b>-38% mis-tags</div>
+      </div>
+
+      <h2>Problem</h2>
+      <p>Users saw ~1 in 6 transactions in the wrong spend category, which broke budgets and drove "why is this marked as shopping?" tickets.</p>
+
+      <h2>Users & insight</h2>
+      <p>What research you did and the one insight that changed the direction.</p>
+
+      <h2>Options considered</h2>
+      <p>Expanding the rules engine vs. a pure LLM vs. a hybrid. Trade-offs on cost per transaction, latency, explainability and regulatory comfort.</p>
+
+      <div class="callout"><strong>Key decision:</strong> rules handle high-confidence merchants; the LLM only sees the long tail, with confidence thresholds and human review below them.</div>
+
+      <h2>Execution</h2>
+      <p>How you built evals, ran the pilot, handled PII (masking account numbers before any model call), and rolled out.</p>
+
+      <h2>Results</h2>
+      <ul>
+        <li>Mis-categorized transactions down 38%</li>
+        <li>Related support tickets down 22%</li>
+        <li>Inference cost kept under ₹X per 1,000 transactions</li>
+      </ul>
+
+      <h2>What I'd do differently</h2>
+      <p>Honest reflection — interviewers value this section.</p>
+
+      <p><a class="btn btn-primary" href="/demos.html">Try the live prototype →</a></p>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <span>© <span data-year>2026</span> Jayant Goswami</span>
+      <div class="footer-links">
+        <a href="https://www.linkedin.com/in/jayant-goswami/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a href="/assets/Jayant-Goswami-Resume.pdf" download>Resume</a>
+        <a href="/privacy.html">Privacy</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

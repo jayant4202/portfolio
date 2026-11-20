@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /case-studies/_template.html
+
+Sitemap: https://YOUR-DOMAIN.com/sitemap.xml

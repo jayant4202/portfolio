@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Case Study: Building a RAG Chatbot with 95% Accuracy | Jayant Goswami</title>
+  <meta name="description" content="How Jayant Goswami designed a retrieval-augmented (RAG) chatbot at Blenheim Chalcot that reached 95% response accuracy and cut query response time by 20%.">
+  <link rel="canonical" href="https://YOUR-DOMAIN.com/case-studies/rag-chatbot.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Case Study: Building a RAG Chatbot with 95% Accuracy | Jayant Goswami">
+  <meta property="og:description" content="How Jayant Goswami designed a retrieval-augmented (RAG) chatbot at Blenheim Chalcot that reached 95% response accuracy and cut query response time by 20%.">
+  <meta property="og:url" content="https://YOUR-DOMAIN.com/case-studies/rag-chatbot.html">
+  <meta property="og:image" content="https://YOUR-DOMAIN.com/assets/img/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <script src="/assets/js/theme.js"></script>
+  <script src="/assets/js/main.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <nav class="container nav" aria-label="Main">
+      <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">JG</span>Jayant Goswami</a>
+      <ul class="nav-links">
+        <li><a href="/work.html" aria-current="page">Work</a></li>
+        <li><a href="/demos.html">Demos</a></li>
+        <li><a href="/about.html">About</a></li>
+        <li><a href="/assets/Jayant-Goswami-Resume.pdf" download>Resume</a></li>
+        <li class="nav-mobile-only"><a href="https://www.linkedin.com/in/jayant-goswami/" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a class="btn btn-primary btn-sm" href="https://www.linkedin.com/in/jayant-goswami/" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
+        <button class="icon-btn" type="button" data-theme-toggle aria-label="Toggle dark mode">◐</button>
+        <button class="icon-btn menu-toggle" type="button" data-menu-toggle aria-label="Open menu" aria-expanded="false">☰</button>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <article class="article">
+      <a class="back" href="/work.html">← All work</a>
+      <h1>A RAG chatbot people could actually trust</h1>
+      <p class="lede">At Blenheim Chalcot I designed a retrieval-augmented generation (RAG) chatbot to automate information retrieval, measured on accuracy first and speed second.</p>
+
+      <div class="summary">
+        <div><b>Role</b>Associate PM</div>
+        <div><b>Company</b>Blenheim Chalcot India</div>
+        <div><b>When</b>2024 – 2025</div>
+        <div><b>Outcome</b>95% accuracy</div>
+      </div>
+
+      <h2>The problem</h2>
+      <p>People spent too long finding answers that already existed somewhere in documentation. A plain chatbot would answer quickly but could make things up — and one confident wrong answer is enough for people to stop trusting the tool.</p>
+      <!-- ADD: who the users were and what kinds of questions they asked. -->
+
+      <h2>Approach</h2>
+      <ul>
+        <li><strong>Ground every answer in sources.</strong> RAG retrieves the relevant documents first and has the model answer only from them, which keeps answers traceable.</li>
+        <li><strong>Define "correct" before building.</strong> Response accuracy was the main success metric, checked against real questions, with response time as the second.</li>
+        <li><strong>Start from the workflow.</strong> This was one of 10+ high-friction manual workflows I identified and assessed for AI automation; the validated ones became PRDs for engineering.</li>
+      </ul>
+      <!-- ADD: how accuracy was measured (test set size, who graded it). -->
+
+      <h2>Results</h2>
+      <ul>
+        <li><strong>95% response accuracy</strong></li>
+        <li><strong>20% faster</strong> query response time</li>
+      </ul>
+
+      <h2>Related work</h2>
+      <p>In the same role I led an AI-agent proof of concept for digital marketing that mapped manual content planning into automated workflows, cutting content creation turnaround by 65%.</p>
+
+      <h2>What I learned</h2>
+      <p>With LLM products, trust is the product. Agreeing on how correctness is measured up front made every later decision — retrieval, prompts, scope — much easier to make.</p>
+
+      <p><a class="btn btn-primary" href="/demos.html">Try a live AI demo →</a></p>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <span>© <span data-year>2026</span> Jayant Goswami</span>
+      <div class="footer-links">
+        <a href="https://www.linkedin.com/in/jayant-goswami/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a href="/assets/Jayant-Goswami-Resume.pdf" download>Resume</a>
+        <a href="/privacy.html">Privacy</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

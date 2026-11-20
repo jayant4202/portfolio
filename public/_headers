@@ -1,0 +1,22 @@
+# Security headers — applied by Cloudflare Pages (and Netlify) to every response.
+# If you embed a prototype from a new host, add it to frame-src below.
+/*
+  Strict-Transport-Security: max-age=63072000; includeSubDomains
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; media-src 'self'; connect-src 'self'; frame-src https://*.vercel.app https://*.streamlit.app https://*.lovable.app https://*.replit.app https://*.pages.dev; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+
+/assets/*
+  Cache-Control: public, max-age=86400
+
+# PDFs open in the browser's built-in viewer; the page CSP isn't needed there and can break the viewer.
+/assets/docs/*
+  ! Content-Security-Policy
+
+/assets/Jayant-Goswami-Resume.pdf
+  ! Content-Security-Policy
+  Content-Disposition: attachment; filename="Jayant-Goswami-Resume.pdf"
