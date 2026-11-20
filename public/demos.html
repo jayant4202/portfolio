@@ -3,12 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Live Prototype Demos | Jayant Goswami</title>
-  <meta name="description" content="Try free, limited demos of AI fintech prototypes built by Jayant Goswami, fintech product manager.">
+  <title>Demos — AI Prototypes | Jayant Goswami</title>
+  <meta name="description" content="Watch demos of AI prototypes built by Jayant Goswami, fintech product manager, including CampaignCrafter, an AI agent that drafts marketing campaigns.">
   <link rel="canonical" href="https://YOUR-DOMAIN.com/demos.html">
-  <meta property="og:title" content="Live AI Fintech Prototypes — Jayant Goswami">
-  <meta property="og:description" content="Free, rate-limited demos of AI fintech prototypes.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Demos — AI Prototypes | Jayant Goswami">
+  <meta property="og:description" content="Watch demos of AI prototypes built by Jayant Goswami, fintech product manager, including CampaignCrafter, an AI agent that drafts marketing campaigns.">
+  <meta property="og:url" content="https://YOUR-DOMAIN.com/demos.html">
   <meta property="og:image" content="https://YOUR-DOMAIN.com/assets/img/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/assets/css/style.css">
   <script src="/assets/js/theme.js"></script>
@@ -36,59 +39,27 @@
 
   <main id="main" class="container">
     <div class="page-head">
-      <h1>Live demos</h1>
-      <p>Prototypes I built to test product ideas fast. Each demo is free and rate-limited so it stays available for everyone. Please don't paste real account numbers or personal data.</p>
+      <h1>Demos</h1>
+      <p>I prototype ideas to test them with real users before committing a team to build them. Here's one in action.</p>
     </div>
 
-    <section>
-      <div class="section-head"><div><h2>Spend categorizer</h2><p>Paste a bank SMS or statement line. The model returns a category, merchant and confidence.</p></div></div>
-      <noscript><p class="demo-fallback">The live demo needs JavaScript. Everything else on this site works without it.</p></noscript>
-      <form class="demo-box" data-ai-demo>
-        <div class="examples">
-          <button class="tag" type="button" data-example="Rs.499.00 debited from a/c XX1234 on 12-11-26 to VPA swiggy@icici. UPI Ref 4321">Food delivery SMS</button>
-          <button class="tag" type="button" data-example="POS 07/11 AMZN Mktp IN*2K4 BANGALORE 2,349.00">Card statement line</button>
-          <button class="tag" type="button" data-example="NACH DR HDFC LTD EMI LOAN 88771 15,200.00">EMI debit</button>
-        </div>
-        <label for="demo-input">Transaction text</label>
-        <textarea id="demo-input" name="input" maxlength="400" required placeholder="e.g. Rs.250 debited to VPA uber@axis…"></textarea>
-        <div class="demo-row">
-          <span class="demo-quota">5 free runs per day</span>
-          <button class="btn btn-primary" type="submit">Categorize</button>
-        </div>
-        <div class="demo-output" aria-live="polite"></div>
-      </form>
+    <section aria-labelledby="cc-h">
+      <article class="card demo-card">
+        <div class="card-top"><span class="tag type">Demo video · 2 min</span><span class="card-org">Prototype</span></div>
+        <h2 id="cc-h" class="demo-title">CampaignCrafter: an AI agent that drafts marketing campaigns</h2>
+        <p>Describe the company, set campaign goals and a target audience, and the agent drafts the campaign plan.</p>
+        <video class="demo-video" controls preload="metadata" playsinline aria-label="CampaignCrafter demo video">
+          <source src="/assets/video/campaigncrafter-demo.mp4" type="video/mp4">
+          <p class="demo-fallback">Your browser can't play this video. <a href="/assets/video/campaigncrafter-demo.mp4">Download it</a> instead.</p>
+        </video>
+        <dl class="demo-facts">
+          <div><dt>Problem</dt><dd>Planning campaigns by hand is slow and repetitive.</dd></div>
+          <div><dt>What it does</dt><dd>Turns a short brief into a structured campaign plan.</dd></div>
+          <div><dt>Stage</dt><dd>Working prototype, shown in a recorded walkthrough.</dd></div>
+        </dl>
+      </article>
+      <p class="more-note">More prototypes are on the way. Meanwhile, see how I build products in my <a href="/work.html">case studies</a>.</p>
     </section>
-
-    <section>
-      <div class="section-head"><div><h2>More prototypes</h2><p>Recorded walkthroughs of AI tools I've built.</p></div></div>
-      <!--
-        TO ADD A PROTOTYPE: copy a card. Set data-demo-url to the prototype's https:// URL
-        (Vercel, Streamlit, Lovable, Replit…). Then add that host to frame-src in /_headers.
-      -->
-      <div class="grid">
-        <article class="card">
-          <span class="tag type">Demo video</span>
-          <h3>CampaignCrafter: AI agent for marketing campaigns</h3>
-          <p>A 2-minute walkthrough of a prototype I built: upload a company description, set campaign goals and a target audience, and an AI agent drafts the campaign plan.</p>
-          <video class="demo-video" controls preload="metadata" playsinline>
-            <source src="/assets/video/campaigncrafter-demo.mp4" type="video/mp4">
-            Your browser can't play this video. <a href="/assets/video/campaigncrafter-demo.mp4">Download it</a> instead.
-          </video>
-        </article>
-      </div>
-    </section>
-
-    <dialog class="demo-modal" aria-label="Prototype demo">
-      <header>
-        <strong data-modal-title>Prototype demo</strong>
-        <span class="demo-modal-status" data-modal-status hidden></span>
-        <div class="actions">
-          <a class="btn btn-ghost btn-sm" data-modal-newtab href="#" target="_blank" rel="noopener noreferrer">Open in new tab ↗</a>
-          <button class="btn btn-ghost btn-sm" type="button" data-modal-close>Close</button>
-        </div>
-      </header>
-      <iframe title="Prototype demo" sandbox="allow-scripts allow-forms allow-same-origin allow-popups" referrerpolicy="no-referrer" loading="lazy" src="about:blank"></iframe>
-    </dialog>
   </main>
 
   <footer class="site-footer">

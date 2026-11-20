@@ -1,13 +1,14 @@
 // Site behaviour. No inline scripts anywhere — required by the Content-Security-Policy in _headers.
-// Each feature is set up independently, so a failure in one never breaks the others.
+// Every feature is optional: the site is fully usable without JavaScript, and each feature is set up
+// independently, so a failure in one never breaks the others.
 (function () {
   "use strict";
   var root = document.documentElement;
 
-  // Only these hosts may be embedded or opened from the Demos page. Keep in sync with frame-src in _headers.
+  // Hosts allowed in the prototype viewer. Keep in sync with frame-src in _headers (currently 'none':
+  // add hosts there too when you publish an embeddable prototype).
   var DEMO_HOST_SUFFIXES = [".vercel.app", ".streamlit.app", ".lovable.app", ".replit.app", ".pages.dev"];
-  var DEMO_TIMEOUT_MS = 30000;   // live AI demo request
-  var EMBED_TIMEOUT_MS = 15000;  // embedded prototype first load
+  var EMBED_TIMEOUT_MS = 15000;
 
   function safely(name, fn) {
     try { fn(); } catch (e) { if (window.console) console.warn("[site] " + name + " disabled:", e); }
@@ -34,9 +35,11 @@
     function set(open) {
       links.classList.toggle("open", open);
       btn.setAttribute("aria-expanded", String(open));
+      btn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
     }
     btn.addEventListener("click", function () { set(!links.classList.contains("open")); });
     document.addEventListener("keydown", function (e) { if (e.key === "Escape") set(false); });
+    links.addEventListener("click", function (e) { if (e.target.closest("a")) set(false); });
   });
 
   /* ---------- Footer year ---------- */
@@ -44,17 +47,39 @@
     document.querySelectorAll("[data-year]").forEach(function (el) { el.textContent = new Date().getFullYear(); });
   });
 
+  /* ---------- Photos: if one fails to load, show initials instead of a broken image ---------- */
+  safely("photos", function () {
+    document.querySelectorAll("figure[data-initials] img").forEach(function (img) {
+      function fail() { img.closest("figure").classList.add("no-photo"); img.hidden = true; }
+      img.addEventListener("error", fail);
+      if (img.complete && img.naturalWidth === 0 && img.getAttribute("src")) fail();
+    });
+  });
+
   /* ---------- Work filters ---------- */
   safely("filters", function () {
     var filters = document.querySelectorAll("[data-filter]");
-    filters.forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        var f = btn.getAttribute("data-filter");
-        filters.forEach(function (b) { b.setAttribute("aria-pressed", String(b === btn)); });
-        document.querySelectorAll("[data-kind]").forEach(function (card) {
-          card.hidden = !(f === "all" || card.getAttribute("data-kind") === f);
-        });
+    if (!filters.length) return;
+    var status = document.querySelector("[data-filter-status]");
+    var cards = document.querySelectorAll("[data-kind]");
+    function apply(f) {
+      var shown = 0;
+      filters.forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-filter") === f)); });
+      cards.forEach(function (card) {
+        var on = f === "all" || card.getAttribute("data-kind") === f;
+        card.hidden = !on;
+        if (on) shown++;
       });
+      document.querySelectorAll("[data-group]").forEach(function (h) {
+        var section = h.closest("section");
+        if (section) section.hidden = !(f === "all" || h.getAttribute("data-group") === f);
+      });
+      if (status) {
+        status.textContent = f === "all" ? "Showing all " + shown : "Showing " + shown + " of " + cards.length;
+      }
+    }
+    filters.forEach(function (btn) {
+      btn.addEventListener("click", function () { apply(btn.getAttribute("data-filter")); });
     });
   });
 
@@ -80,7 +105,7 @@
     });
   });
 
-  /* ---------- Prototype demo modal (sandboxed iframe, allow-listed hosts only) ---------- */
+  /* ---------- Prototype viewer (sandboxed iframe, allow-listed hosts only; used when a page has one) ---------- */
   function allowedDemoUrl(raw) {
     var url;
     try { url = new URL(raw, location.href); } catch (e) { return null; }
@@ -91,14 +116,14 @@
   }
 
   safely("demo-modal", function () {
+    var buttons = document.querySelectorAll("[data-demo-url]");
+    if (!buttons.length) return;
     var modal = document.querySelector("dialog.demo-modal");
     if (!modal || typeof modal.showModal !== "function") {
-      // Very old browsers without <dialog>: fall back to opening allowed demos in a new tab.
-      document.querySelectorAll("[data-demo-url]").forEach(function (btn) {
-        btn.addEventListener("click", function () {
-          var url = allowedDemoUrl(btn.getAttribute("data-demo-url"));
-          if (url) window.open(url.href, "_blank", "noopener,noreferrer");
-        });
+      buttons.forEach(function (btn) {
+        var url = allowedDemoUrl(btn.getAttribute("data-demo-url"));
+        if (!url) { btn.disabled = true; return; }
+        btn.addEventListener("click", function () { window.open(url.href, "_blank", "noopener,noreferrer"); });
       });
       return;
     }
@@ -107,8 +132,7 @@
     var newTab = modal.querySelector("[data-modal-newtab]");
     var status = modal.querySelector("[data-modal-status]");
     var timer = null;
-
-    document.querySelectorAll("[data-demo-url]").forEach(function (btn) {
+    buttons.forEach(function (btn) {
       var url = allowedDemoUrl(btn.getAttribute("data-demo-url"));
       if (!url) { btn.disabled = true; btn.title = "Demo link not allowed"; return; }
       btn.addEventListener("click", function () {
@@ -130,84 +154,5 @@
     });
     modal.querySelector("[data-modal-close]").addEventListener("click", function () { modal.close(); });
     modal.addEventListener("close", function () { clearTimeout(timer); frame.src = "about:blank"; });
-  });
-
-  /* ---------- Live AI demo (calls /api/demo, rate-limited server-side) ---------- */
-  safely("ai-demo", function () {
-    var form = document.querySelector("[data-ai-demo]");
-    if (!form) return;
-    var input = form.querySelector("textarea");
-    var out = form.querySelector(".demo-output");
-    var quota = form.querySelector(".demo-quota");
-    var submit = form.querySelector("button[type=submit]");
-    var MAX = parseInt(input.getAttribute("maxlength"), 10) || 400;
-    var busy = false;
-
-    form.querySelectorAll("[data-example]").forEach(function (b) {
-      b.addEventListener("click", function () { input.value = b.getAttribute("data-example"); input.focus(); });
-    });
-
-    function show(msg, isErr) {
-      out.textContent = msg; // textContent, never innerHTML — model output is untrusted
-      out.classList.toggle("error", !!isErr);
-    }
-
-    function messageForStatus(status) {
-      if (status === 429) return "You've reached today's free limit. Please come back tomorrow.";
-      if (status === 403) return "This demo only works on the portfolio site itself.";
-      if (status === 404 || status === 405 || status === 503) return "The live demo isn't switched on right now. Please try again later.";
-      if (status === 504) return "The AI took too long to answer. Please try again.";
-      return "Something went wrong on our side. Please try again in a minute.";
-    }
-
-    form.addEventListener("submit", function (ev) {
-      ev.preventDefault();
-      if (busy) return;
-      var text = input.value.trim();
-      if (!text) { show("Please enter a transaction first.", true); return; }
-      if (text.length > MAX) { show("Please keep it under " + MAX + " characters.", true); return; }
-      if (navigator.onLine === false) { show("You appear to be offline. Check your connection and try again.", true); return; }
-
-      busy = true;
-      submit.disabled = true;
-      show("Thinking…", false);
-
-      var controller = typeof AbortController === "function" ? new AbortController() : null;
-      var timer = setTimeout(function () { if (controller) controller.abort(); }, DEMO_TIMEOUT_MS);
-
-      fetch("/api/demo", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input: text }),
-        signal: controller ? controller.signal : undefined,
-        credentials: "same-origin",
-        redirect: "error" // never follow a redirect to another site
-      })
-        .then(function (r) {
-          return r.json().then(
-            function (d) { return { status: r.status, ok: r.ok, data: d || {} }; },
-            function () { return { status: r.status, ok: false, data: {} }; } // non-JSON (e.g. host error page)
-          );
-        })
-        .then(function (res) {
-          if (typeof res.data.remaining === "number") {
-            quota.textContent = res.data.remaining + (res.data.remaining === 1 ? " free run" : " free runs") + " left today";
-          }
-          if (res.ok && typeof res.data.output === "string" && res.data.output) {
-            show(res.data.output, false);
-          } else {
-            show(typeof res.data.error === "string" && res.data.error ? res.data.error : messageForStatus(res.status), true);
-          }
-        })
-        .catch(function (err) {
-          if (err && err.name === "AbortError") show("The AI took too long to answer. Please try again.", true);
-          else show("Couldn't reach the demo. Check your connection and try again.", true);
-        })
-        .then(function () {
-          clearTimeout(timer);
-          busy = false;
-          submit.disabled = false;
-        });
-    });
   });
 })();

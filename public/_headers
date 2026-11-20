@@ -1,8 +1,8 @@
 # Security headers — applied by Cloudflare Pages (and Netlify) to every response.
-# If you embed a prototype from a new host, add it to frame-src below.
+# To embed a hosted prototype later, change frame-src 'none' to that host (e.g. https://my-app.vercel.app).
 /*
   Strict-Transport-Security: max-age=63072000; includeSubDomains
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; media-src 'self'; connect-src 'self'; frame-src https://*.vercel.app https://*.streamlit.app https://*.lovable.app https://*.replit.app https://*.pages.dev; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; media-src 'self'; connect-src 'none'; frame-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'none'; object-src 'none'; upgrade-insecure-requests
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin

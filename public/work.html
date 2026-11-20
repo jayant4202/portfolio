@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Work — Case Studies & Assignments | Jayant Goswami</title>
-  <meta name="description" content="Fintech and AI product case studies by Jayant Goswami: Credit Line on UPI launches, change-request P&L, RAG chatbot, onboarding redesign and research.">
+  <title>Work — Case Studies &amp; Assignments | Jayant Goswami</title>
+  <meta name="description" content="Fintech and AI product case studies and assignments by Jayant Goswami: Credit Line on UPI, change-request P&amp;L, RAG chatbot, KoreFi, Volopay, Ola, Kalaari and AxionRay.">
   <link rel="canonical" href="https://YOUR-DOMAIN.com/work.html">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Work — Case Studies & Assignments | Jayant Goswami">
-  <meta property="og:description" content="Fintech and AI product case studies by Jayant Goswami: Credit Line on UPI launches, change-request P&L, RAG chatbot, onboarding redesign and research.">
+  <meta property="og:title" content="Work — Case Studies &amp; Assignments | Jayant Goswami">
+  <meta property="og:description" content="Fintech and AI product case studies and assignments by Jayant Goswami: Credit Line on UPI, change-request P&amp;L, RAG chatbot, KoreFi, Volopay, Ola, Kalaari and AxionRay.">
   <meta property="og:url" content="https://YOUR-DOMAIN.com/work.html">
   <meta property="og:image" content="https://YOUR-DOMAIN.com/assets/img/og-image.png">
   <meta name="twitter:card" content="summary_large_image">
@@ -40,107 +40,116 @@
   <main id="main" class="container">
     <div class="page-head">
       <h1>Work</h1>
-      <p>Case studies from products I've shipped, plus assignments and research where I worked through a problem end to end.</p>
+      <p>Case studies from products I've shipped, and assignments where I worked through a new problem end to end. Each card opens the full write-up.</p>
     </div>
 
     <div class="filters" role="group" aria-label="Filter work">
-      <button class="filter" type="button" data-filter="all" aria-pressed="true">All</button>
-      <button class="filter" type="button" data-filter="case-study" aria-pressed="false">Case studies</button>
-      <button class="filter" type="button" data-filter="assignment" aria-pressed="false">Assignments &amp; research</button>
+      <button class="filter" type="button" data-filter="all" aria-pressed="true">All <span class="count">11</span></button>
+      <button class="filter" type="button" data-filter="case-study" aria-pressed="false">Case studies <span class="count">5</span></button>
+      <button class="filter" type="button" data-filter="assignment" aria-pressed="false">Assignments &amp; research <span class="count">6</span></button>
     </div>
+    <p class="filter-status" data-filter-status aria-live="polite">Showing all 11</p>
 
     <!--
-      TO ADD AN ITEM: copy one <article> below, set data-kind to "case-study" or "assignment",
-      and link it to a page in /case-studies/ (copy case-studies/_template.html).
-      For a PDF assignment, put the PDF in /assets/docs/ and link the card straight to it.
+      TO ADD AN ITEM: copy one <article>, set data-kind to "case-study" or "assignment", update the
+      counts in the filter buttons above, and link it to a page in /case-studies/ or /assignments/.
     -->
-    <h2 class="visually-hidden">All work</h2>
-    <div class="grid">
-      <article class="card linked" data-kind="case-study">
-        <span class="tag type">Case study · Vegapay</span>
-        <h3><a href="/case-studies/credit-line-on-upi.html">Launching Credit Line on UPI and credit cards with banks</a></h3>
-        <p>Integration and rollout across banks, UPI networks and lending platforms, plus the governance that made launches repeatable.</p>
-        <div class="metric-row"><span><b>-30%</b> TAT</span><span><b>-30%</b> MTTR</span><span><b>-25%</b> incidents</span></div>
-        <div class="meta"><span class="tag">Credit</span><span class="tag">UPI</span><span class="tag">Bank integrations</span></div>
-      </article>
+    <section aria-labelledby="case-studies-h">
+      <h2 class="group-title" id="case-studies-h" data-group="case-study">Case studies</h2>
+      <div class="grid">
+        <article class="card linked" data-kind="case-study">
+          <div class="card-top"><span class="tag type">Case study</span><span class="card-org">Vegapay</span></div>
+          <h3><a href="/case-studies/credit-line-on-upi.html">Launching Credit Line on UPI and credit cards with banks</a></h3>
+          <p>Made multi-bank launches repeatable, from solution design and API integration to go-live.</p>
+          <ul class="card-metrics" aria-label="Results"><li><b>-30%</b> implementation time</li><li><b>-30%</b> time to fix incidents</li><li><b>-25%</b> production incidents</li></ul>
+          <div class="meta"><span class="tag">Credit</span><span class="tag">UPI</span><span class="tag">Bank integrations</span></div>
+          <span class="card-cta" aria-hidden="true">Read case study <span class="arrow">→</span></span>
+        </article>
+        <article class="card linked" data-kind="case-study">
+          <div class="card-top"><span class="tag type">Case study</span><span class="card-org">Vegapay</span></div>
+          <h3><a href="/case-studies/change-request-platform.html">Turning client change requests into a revenue line</a></h3>
+          <p>Priced and prioritised client requests, then built the workflow with Claude Code.</p>
+          <ul class="card-metrics" aria-label="Results"><li><b>+25%</b> revenue in 2 quarters</li><li><b>50+</b> requests prioritised</li></ul>
+          <div class="meta"><span class="tag">P&amp;L</span><span class="tag">AI-native</span><span class="tag">Internal tools</span></div>
+          <span class="card-cta" aria-hidden="true">Read case study <span class="arrow">→</span></span>
+        </article>
+        <article class="card linked" data-kind="case-study">
+          <div class="card-top"><span class="tag type">Case study</span><span class="card-org">Blenheim Chalcot</span></div>
+          <h3><a href="/case-studies/rag-chatbot.html">A RAG chatbot people could actually trust</a></h3>
+          <p>Retrieval-based answers for internal knowledge, measured on accuracy first.</p>
+          <ul class="card-metrics" aria-label="Results"><li><b>95%</b> answer accuracy</li><li><b>-20%</b> response time</li></ul>
+          <div class="meta"><span class="tag">RAG</span><span class="tag">LLM</span><span class="tag">0→1</span></div>
+          <span class="card-cta" aria-hidden="true">Read case study <span class="arrow">→</span></span>
+        </article>
+        <article class="card" data-kind="case-study">
+          <div class="card-top"><span class="tag type">Highlight</span><span class="card-org">Blenheim Chalcot</span></div>
+          <h3>Onboarding redesign</h3>
+          <p>Mapped the user journey and friction points, simplified key workflows and shipped self-serve help.</p>
+          <ul class="card-metrics" aria-label="Results"><li><b>-40%</b> support dependency</li><li><b>+15%</b> adoption</li></ul>
+          <div class="meta"><span class="tag">Onboarding</span><span class="tag">UX research</span></div>
+          <span class="card-note">Highlight from my resume</span>
+        </article>
+        <article class="card" data-kind="case-study">
+          <div class="card-top"><span class="tag type">Highlight</span><span class="card-org">Blenheim Chalcot</span></div>
+          <h3>AI agent for content planning (POC)</h3>
+          <p>Turned a manual content-planning process into an automated agent workflow.</p>
+          <ul class="card-metrics" aria-label="Results"><li><b>-65%</b> content creation time</li></ul>
+          <div class="meta"><span class="tag">AI agents</span><span class="tag">Automation</span></div>
+          <span class="card-note">Highlight from my resume</span>
+        </article>
+      </div>
+    </section>
 
-      <article class="card linked" data-kind="case-study">
-        <span class="tag type">Case study · Vegapay</span>
-        <h3><a href="/case-studies/change-request-platform.html">Change requests as a revenue line, automated with Claude Code</a></h3>
-        <p>Pricing and prioritising client change requests, then replacing spreadsheets with an approval-driven workflow.</p>
-        <div class="metric-row"><span><b>+25%</b> revenue in 2 quarters</span></div>
-        <div class="meta"><span class="tag">P&amp;L</span><span class="tag">AI-native</span><span class="tag">Internal tools</span></div>
-      </article>
-
-      <article class="card linked" data-kind="case-study">
-        <span class="tag type">Case study · Blenheim Chalcot</span>
-        <h3><a href="/case-studies/rag-chatbot.html">A RAG chatbot people could actually trust</a></h3>
-        <p>Retrieval-based answers for internal knowledge, built around accuracy first.</p>
-        <div class="metric-row"><span><b>95%</b> accuracy</span><span><b>-20%</b> response time</span></div>
-        <div class="meta"><span class="tag">RAG</span><span class="tag">LLM</span></div>
-      </article>
-
-      <article class="card" data-kind="case-study">
-        <span class="tag type">Snapshot · Blenheim Chalcot</span>
-        <h3>Onboarding redesign</h3>
-        <p>Mapped the user journey and friction points, simplified critical workflows and shipped self-serve documentation.</p>
-        <div class="metric-row"><span><b>-40%</b> support dependency</span><span><b>+15%</b> adoption</span></div>
-        <div class="meta"><span class="tag">Onboarding</span><span class="tag">UX research</span></div>
-      </article>
-
-      <article class="card" data-kind="case-study">
-        <span class="tag type">Snapshot · Blenheim Chalcot</span>
-        <h3>AI agent for digital marketing (POC)</h3>
-        <p>Turned a manual content-planning process into an automated agent workflow.</p>
-        <div class="metric-row"><span><b>-65%</b> content creation TAT</span></div>
-        <div class="meta"><span class="tag">AI agents</span><span class="tag">Automation</span></div>
-      </article>
-
-      <article class="card linked" data-kind="assignment">
-        <span class="tag type">Assignment · Ola Electric</span>
-        <h3><a href="/assignments/ola-seat.html">Ola Seat: a guaranteed electric seat for the daily commute</a></h3>
-        <p>A monthly-pass, reserved-seat EV micro-transit network for the 6–20 km commute, with unit economics and a path to 100M riders.</p>
-        <div class="metric-row"><span><b>₹1,730</b>/month pass</span><span><b>3.5 of 7</b> seats to break even</span></div>
-        <div class="meta"><span class="tag">Product strategy</span><span class="tag">Mobility</span><span class="tag">Unit economics</span></div>
-      </article>
-
-      <article class="card linked" data-kind="assignment">
-        <span class="tag type">Assignment · KoreFi</span>
-        <h3><a href="/assignments/korefi-payout-auditor.html">Payout Auditor: recovering restaurants' delivery-app money</a></h3>
-        <p>Field visits to three Swiggy and Zomato restaurants, and an AI coworker that reconciles every order to the bank credit and files the disputes.</p>
-        <div class="metric-row"><span><b>₹14.67L</b>/month on apps</span><span><b>3 of 3</b> had the problem</span></div>
-        <div class="meta"><span class="tag">User research</span><span class="tag">Reconciliation</span><span class="tag">AI agents</span></div>
-      </article>
-
-      <article class="card linked" data-kind="assignment">
-        <span class="tag type">Assignment · Volopay</span>
-        <h3><a href="/assignments/volopay-invoice-rail.html">Volopay Invoice Rail: e-invoicing built through partners</a></h3>
-        <p>Verified-invoice pay and finance for India and the UAE, plus a 90-day partnership channel plan for Volopay AR.</p>
-        <div class="meta"><span class="tag">B2B payments</span><span class="tag">E-invoicing</span><span class="tag">Partnerships</span></div>
-      </article>
-
-      <article class="card linked" data-kind="assignment">
-        <span class="tag type">Assignment · Kalaari Capital</span>
-        <h3><a href="/assignments/kalaari-investment-memo.html">Investment memo and MIS analysis for a venture fund</a></h3>
-        <p>A wealth-tech investment memo with scenario returns, and a SaaS board-pack analysis of retention, runway and reporting errors.</p>
-        <div class="meta"><span class="tag">Wealth-tech</span><span class="tag">VC</span><span class="tag">Financial analysis</span></div>
-      </article>
-
-      <article class="card linked" data-kind="assignment">
-        <span class="tag type">Assignment · AxionRay</span>
-        <h3><a href="/assignments/axionray-support-ai.html">AI support platform proposal and ROI case</a></h3>
-        <p>AI that mines support calls to cut costly escalations, with an ROI model, phased rollout and SaaS pricing.</p>
-        <div class="metric-row"><span><b>~4–8 mo</b> payback</span></div>
-        <div class="meta"><span class="tag">Enterprise AI</span><span class="tag">Solution design</span></div>
-      </article>
-
-      <article class="card" data-kind="assignment">
-        <span class="tag type">Research · Copenhagen Business School</span>
-        <h3>IFC in least-developed countries: where capital is missing</h3>
-        <p>With Prof. Dr. Rama Seth: assessed IFC's startup programmes and projects, and identified gaps such as scarce long-term MSME credit and missing local-currency-to-USD swaps.</p>
-        <div class="meta"><span class="tag">Development finance</span><span class="tag">MSME credit</span></div>
-      </article>
-    </div>
+    <section aria-labelledby="assignments-h" id="assignments">
+      <h2 class="group-title" id="assignments-h" data-group="assignment">Assignments &amp; research</h2>
+      <div class="grid">
+        <article class="card linked" data-kind="assignment">
+          <div class="card-top"><span class="tag type">Assignment</span><span class="card-org">KoreFi</span></div>
+          <h3><a href="/assignments/korefi-payout-auditor.html">Payout Auditor: recovering restaurants' delivery-app money</a></h3>
+          <p>Field visits to three Swiggy and Zomato restaurants, and an AI coworker that reconciles payouts and files disputes.</p>
+          <ul class="card-metrics" aria-label="Results"><li><b>₹14.67L</b> monthly app orders studied</li><li><b>3/3</b> had the problem</li></ul>
+          <div class="meta"><span class="tag">User research</span><span class="tag">Reconciliation</span><span class="tag">AI agents</span></div>
+          <span class="card-cta" aria-hidden="true">View assignment <span class="arrow">→</span></span>
+        </article>
+        <article class="card linked" data-kind="assignment">
+          <div class="card-top"><span class="tag type">Assignment</span><span class="card-org">Volopay</span></div>
+          <h3><a href="/assignments/volopay-invoice-rail.html">Invoice Rail: e-invoicing built through partners</a></h3>
+          <p>Pay and finance verified invoices in India and the UAE, plus a 90-day partner channel plan.</p>
+          <div class="meta"><span class="tag">B2B payments</span><span class="tag">E-invoicing</span><span class="tag">Partnerships</span></div>
+          <span class="card-cta" aria-hidden="true">View assignment <span class="arrow">→</span></span>
+        </article>
+        <article class="card linked" data-kind="assignment">
+          <div class="card-top"><span class="tag type">Assignment</span><span class="card-org">Ola Electric</span></div>
+          <h3><a href="/assignments/ola-seat.html">Ola Seat: a guaranteed electric seat for the daily commute</a></h3>
+          <p>A monthly-pass EV micro-transit product for the 6–20 km commute, with unit economics and a path to 100M riders.</p>
+          <ul class="card-metrics" aria-label="Results"><li><b>₹1,730</b> monthly pass</li><li><b>3.5</b> of 7 seats to break even</li></ul>
+          <div class="meta"><span class="tag">Product strategy</span><span class="tag">Mobility</span><span class="tag">Unit economics</span></div>
+          <span class="card-cta" aria-hidden="true">View assignment <span class="arrow">→</span></span>
+        </article>
+        <article class="card linked" data-kind="assignment">
+          <div class="card-top"><span class="tag type">Assignment</span><span class="card-org">Kalaari Capital</span></div>
+          <h3><a href="/assignments/kalaari-investment-memo.html">Investment memo and MIS analysis for a venture fund</a></h3>
+          <p>A wealth-tech deal memo with scenario returns, and a SaaS board-pack review of retention and runway.</p>
+          <div class="meta"><span class="tag">Wealth-tech</span><span class="tag">VC</span><span class="tag">Financial analysis</span></div>
+          <span class="card-cta" aria-hidden="true">View assignment <span class="arrow">→</span></span>
+        </article>
+        <article class="card linked" data-kind="assignment">
+          <div class="card-top"><span class="tag type">Assignment</span><span class="card-org">AxionRay</span></div>
+          <h3><a href="/assignments/axionray-support-ai.html">AI support platform proposal and ROI case</a></h3>
+          <p>AI that mines support calls to cut costly escalations, with an ROI model, rollout plan and pricing.</p>
+          <ul class="card-metrics" aria-label="Results"><li><b>~4–8</b> months payback</li></ul>
+          <div class="meta"><span class="tag">Enterprise AI</span><span class="tag">Solution design</span></div>
+          <span class="card-cta" aria-hidden="true">View assignment <span class="arrow">→</span></span>
+        </article>
+        <article class="card" data-kind="assignment">
+          <div class="card-top"><span class="tag type">Research</span><span class="card-org">Copenhagen Business School</span></div>
+          <h3>IFC in least-developed countries: where capital is missing</h3>
+          <p>With Prof. Dr. Rama Seth: assessed IFC's startup programmes and found gaps in long-term MSME credit and currency swaps.</p>
+          <div class="meta"><span class="tag">Development finance</span><span class="tag">MSME credit</span></div>
+          <span class="card-note">Highlight from my resume</span>
+        </article>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer">
