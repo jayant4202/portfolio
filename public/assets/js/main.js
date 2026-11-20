@@ -48,6 +48,13 @@
   });
 
   /* ---------- Photos: if one fails to load, show initials instead of a broken image ---------- */
+  safely("avatar", function () {
+    document.querySelectorAll(".brand-mark img").forEach(function (img) {
+      function fail() { img.hidden = true; }
+      img.addEventListener("error", fail);
+      if (img.complete && img.naturalWidth === 0) fail();
+    });
+  });
   safely("photos", function () {
     document.querySelectorAll("figure[data-initials] img").forEach(function (img) {
       function fail() { img.closest("figure").classList.add("no-photo"); img.hidden = true; }

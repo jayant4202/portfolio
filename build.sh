@@ -52,6 +52,16 @@ while IFS= read -r line; do
   [[ "$line" == *noopener* ]] || fail "link opens a new tab without rel=noopener: $line"
 done < <(grep -hoE '<a [^>]*target="_blank"[^>]*>' $HTML_FILES || true)
 
+# 4b. Every page's main structural tags must be closed, or the layout breaks.
+for page in $HTML_FILES; do
+  stripped=$(perl -0pe "s/<!--.*?-->//gs" "$page")
+  for tag in div section article main aside header footer nav ul ol figure; do
+    open=$( { printf "%s" "$stripped" | grep -oE "<${tag}[ >]" || true; } | wc -l | tr -d " ")
+    close=$( { printf "%s" "$stripped" | grep -oE "</${tag}>" || true; } | wc -l | tr -d " ")
+    [[ "$open" == "$close" ]] || fail "unclosed <${tag}> in ${page#$OUT} (${open} opened, ${close} closed)"
+  done
+done
+
 # 5. Every internal link, script, image, video and PDF must exist.
 missing=""
 while IFS= read -r ref; do

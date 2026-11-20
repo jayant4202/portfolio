@@ -183,10 +183,7 @@ dialog.demo-modal::backdrop { background: rgba(5, 10, 20, .6); }
 
 /* ---------- v2: hero with photo, credentials, cards ---------- */
 .hero { padding: 72px 0 40px; }
-.hero-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: 56px; align-items: center; }
-.hero-photo { position: relative; margin: 0; justify-self: end; width: 100%; max-width: 400px; }
-.hero-photo img, .about-photo img { display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 24px; box-shadow: var(--shadow); background: var(--surface-2); }
-.photo-badge { position: absolute; left: 16px; bottom: 16px; display: inline-flex; gap: 8px; align-items: center; background: var(--surface); color: var(--text); border: 1px solid var(--border); padding: 8px 14px; border-radius: 12px; font-size: 14px; font-weight: 700; box-shadow: var(--shadow); }
+.about-photo img { display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 24px; box-shadow: var(--shadow); background: var(--surface-2); }
 figure.no-photo { aspect-ratio: 1 / 1; border-radius: 24px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); display: grid; place-items: center; }
 figure.no-photo::before { content: attr(data-initials); color: #fff; font-size: 64px; font-weight: 800; }
 .credential-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 28px; }
@@ -197,9 +194,6 @@ figure.no-photo::before { content: attr(data-initials); color: #fff; font-size: 
 .stats { margin-top: 48px; }
 @media (max-width: 820px) {
   .hero { padding: 40px 0 32px; }
-  .hero-grid { grid-template-columns: 1fr; gap: 28px; }
-  .hero-photo { order: -1; justify-self: start; max-width: 220px; }
-  .photo-badge { left: 10px; bottom: 10px; font-size: 13px; padding: 6px 10px; }
 }
 
 /* Cards: whole card is clickable when it links somewhere; clear "what happens if I click" */
@@ -236,17 +230,52 @@ figure.no-photo::before { content: attr(data-initials); color: #fff; font-size: 
 .more-note { color: var(--muted); margin-top: 20px; }
 
 /* About page */
-.about-intro { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 32px; align-items: center; padding-top: 48px; }
-.about-intro .page-head { padding: 0; }
-.about-photo { margin: 0; width: 200px; }
-.side-stack { display: grid; gap: 16px; }
 .edu-panel { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); background: var(--accent-soft); }
 .edu-panel h3 { margin: 10px 0 4px; }
 .edu-panel p { margin: 0; color: var(--muted); }
 .panel-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .skill-label { margin: 12px 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; font-weight: 700; color: var(--muted); }
 .timeline h3 { font-size: 1.05rem; }
-@media (max-width: 640px) {
-  .about-intro { grid-template-columns: 1fr; gap: 20px; padding-top: 32px; }
-  .about-photo { width: 140px; }
+
+/* ---------- v3: consistent layout system ---------- */
+/* Profile photo as the site icon (initials show underneath if the image can't load) */
+.brand-mark { position: relative; width: 36px; height: 36px; border-radius: 50%; overflow: hidden; flex: 0 0 36px; font-size: 13px; }
+.brand-mark img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.brand-mark img[hidden] { display: none; }
+
+/* One left edge and one top spacing for every page */
+:root { --page-top: 56px; --page-top-sm: 32px; --gutter: 20px; }
+.hero { padding: var(--page-top) 0 40px; }
+.page-head { padding: var(--page-top) 0 8px; }
+.article { max-width: var(--maxw); margin: 0 auto; padding: var(--page-top) var(--gutter) 24px; }
+.article > * { max-width: 760px; }
+.article > .summary { max-width: 760px; }
+.hero-copy > * { max-width: 820px; }
+.hero h1 { max-width: 22ch; }
+.highlight-line { max-width: 62ch; margin: -8px 0 24px; padding: 12px 16px; border-left: 3px solid var(--accent); background: var(--surface); border-radius: 0 10px 10px 0; color: var(--text); font-size: 1rem; }
+.highlight-label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; font-weight: 700; color: var(--accent); margin-bottom: 2px; }
+.page-head p + p { margin-top: 14px; }
+
+/* About: text left, photo + cards right */
+.about-layout { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr); grid-template-rows: auto 1fr; grid-template-areas: "text side" "exp side"; column-gap: 48px; align-items: start; }
+.about-layout > .about-text { grid-area: text; padding-bottom: 24px; }
+.about-layout > .about-exp { grid-area: exp; padding: 8px 0 24px; }
+.about-layout > .about-side { grid-area: side; }
+.about-side { display: grid; gap: 16px; padding-top: var(--page-top); }
+.about-photo { margin: 0; width: 100%; max-width: 360px; }
+.about-side .panel h3 { margin-top: 0; }
+.about-side .edu-panel h3 { margin-top: 10px; }
+
+@media (max-width: 860px) {
+  .about-layout { grid-template-columns: 1fr; grid-template-rows: auto; grid-template-areas: "text" "side" "exp"; }
+  .about-side { padding-top: 8px; padding-bottom: 24px; }
+  .about-photo { max-width: 280px; }
 }
+@media (max-width: 820px) {
+  .hero { padding-top: var(--page-top-sm); }
+  .page-head { padding-top: var(--page-top-sm); }
+  .article { padding-top: var(--page-top-sm); }
+}
+/* Never let long words, tables or media push the page sideways */
+h1, h2, h3, p, li, dd { overflow-wrap: break-word; }
+img, video { max-width: 100%; }
