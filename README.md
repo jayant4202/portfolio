@@ -31,7 +31,17 @@ gets deployed, so the live site stays on its last good version.
   `public/sitemap.xml`. PDFs go in `public/assets/docs/`.
 - **`<!-- ADD: ... -->` notes** in the case-study pages mark details only you can fill in.
 
+- **Results with trend arrows:** copy an existing result chip and change the number. The classes set
+  the look: `kpi good up` (green ▲), `kpi good down` (green ▼, e.g. a time reduction),
+  `kpi bad up` / `kpi bad down` (red), `kpi neutral` (no arrow, e.g. "95%").
+
+      <span class="kpi good down"><span class="kpi-arrow" aria-hidden="true">▼</span>30%<span class="visually-hidden"> decrease (an improvement)</span></span>
+- **Tags and skills** use Title Case (e.g. "API Integrations"); headings and buttons use sentence case.
+- **Once a year:** update the `Expires` date in `public/.well-known/security.txt`.
+
 Then commit and push in GitHub Desktop. Cloudflare rebuilds and republishes in about a minute.
+`build.sh` stamps every CSS, JS and image link with a content fingerprint, so visitors always get the
+new styles right after a deploy (no stale-cache layout glitches).
 
 ## Hosting (Cloudflare Pages)
 

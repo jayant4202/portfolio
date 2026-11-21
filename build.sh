@@ -35,6 +35,20 @@ if grep -rlI 'YOUR-DOMAIN' "$OUT"; then fail "placeholder domain still present i
 
 HTML_FILES=$(find "$OUT" -name '*.html')
 
+# 2b. Cache-busting: stamp every CSS/JS/image reference with a fingerprint of the file's contents,
+#     so after a deploy no visitor ever mixes new pages with an old cached stylesheet or script.
+stamp() { # stamp <asset path> <files to rewrite...>
+  local asset=$1; shift
+  [[ -f "$OUT$asset" ]] || return 0
+  local v; v=$(cksum < "$OUT$asset" | cut -d' ' -f1)
+  local f; for f in "$@"; do
+    sed -i.bak -E "s#${asset//./\\.}([\" )])#${asset}?v=${v}\1#g" "$f" && rm -f "$f.bak"
+  done
+}
+CSS_FILES=$(find "$OUT/assets/css" -name '*.css' 2>/dev/null || true)
+for img in $(cd "$OUT" && find assets/img -type f | sed 's#^#/#'); do stamp "$img" $HTML_FILES $CSS_FILES; done
+for asset in $(cd "$OUT" && find assets/css assets/js -type f | sed 's#^#/#'); do stamp "$asset" $HTML_FILES; done
+
 # 3. Every outside link must be on the allow-list (no surprise redirects to other sites).
 bad=$(grep -hoE '(href|src|action|content|data-demo-url)="https?://[^"]+"' $HTML_FILES \
   | sed -E 's/^[a-z-]+="//; s/"$//' \

@@ -21,7 +21,7 @@
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
     <nav class="container nav" aria-label="Main">
-      <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">JG<img src="/assets/img/jayant-goswami-avatar.jpg" width="64" height="64" alt=""></span>Jayant Goswami</a>
+      <a class="brand" href="/"><span class="brand-mark" data-initials="JG" aria-hidden="true"><img src="/assets/img/jayant-goswami-avatar.jpg" width="64" height="64" alt=""></span>Jayant Goswami</a>
       <ul class="nav-links">
         <li><a href="/work.html">Work</a></li>
         <li><a href="/demos.html">Demos</a></li>
@@ -39,63 +39,82 @@
 
   <main id="main" class="container">
     <div class="about-layout">
-        <div class="page-head about-text">
+      <div class="page-head about-text">
+        <div class="about-head">
           <h1>About me</h1>
-          <p>I'm a product manager who turns ambiguous problem statements into structured, shippable solutions. I start with the problem and the people who have it, shape the solution with the teams who'll build it, and measure what ships. I use AI throughout: to build working prototypes and functional PRDs, so ideas are tested before they're expensive.</p>
-          <p>Most recently I was in Vegapay's Founder's Office, launching Credit Line on UPI and credit card programs with banks. Before that I built AI-led products at Axion and Blenheim Chalcot. I studied engineering at <strong>BITS Pilani</strong>.</p>
+          <img class="about-avatar-sm" src="/assets/img/jayant-goswami-360.jpg" width="360" height="360" alt="">
         </div>
+        <p>I'm a product manager who turns ambiguous problem statements into structured, shippable solutions. I start with the problem and the people who have it, shape the solution with the teams who'll build it, and measure what ships. I use AI throughout: to build working prototypes and functional PRDs, so ideas are tested before they're expensive.</p>
+        <p>Most recently I was in Vegapay's Founder's Office, launching Credit Line on UPI and credit card programs with banks. Before that I built AI-led products at Axion and Blenheim Chalcot. I studied engineering at <strong>BITS Pilani</strong>.</p>
+      </div>
 
-        <section class="about-exp" aria-labelledby="exp-h">
-          <h2 id="exp-h">Experience</h2>
-          <ul class="timeline">
-            <li>
-              <span class="when">Feb 2026 — Oct 2026</span>
-              <h3>Founder's Office · Vegapay</h3>
-              <p>Led integration and rollout of Credit Line on UPI and credit card programs across banks and fintech partners, cutting implementation time by 30%. Owned prioritisation and P&amp;L for client change requests (+25% revenue over 2 quarters), managed 15+ go-lives across 6+ banks and partners, and cut incident resolution time by 30% and production incidents by 25%. Built internal workflows with Claude Code.</p>
-            </li>
-            <li>
-              <span class="when">Nov 2025 — Feb 2026</span>
-              <h3>Associate Product Manager · Axion</h3>
-              <p>Led discovery and delivery of 10+ AI-enabled solution prototypes for healthcare customers, contributing to a 20% increase in qualified opportunities, and cut solution turnaround time by 25% by standardising deployment.</p>
-            </li>
-            <li>
-              <span class="when">Jun 2024 — Oct 2025</span>
-              <h3>Associate Product Manager · Blenheim Chalcot India</h3>
-              <p>Owned roadmap and backlog across 12 releases in 3 quarters (backlog -25%, sprint velocity +35%). Redesigned onboarding (-40% support dependency, +15% adoption), built a RAG chatbot with 95% accuracy, and led an AI agent proof of concept that cut content creation time by 65%.</p>
-            </li>
-            <li>
-              <span class="when">Aug 2023 — Aug 2024</span>
-              <h3>Research Intern · Copenhagen Business School</h3>
-              <p>With Prof. Dr. Rama Seth: evaluated IFC's startup programmes and projects in least-developed countries, and identified credit and currency gaps for MSMEs.</p>
-            </li>
-          </ul>
-        </section>
+      <section class="about-exp" aria-labelledby="exp-h">
+        <h2 id="exp-h">Experience</h2>
+        <ul class="timeline">
+          <li>
+            <span class="when">Feb 2026 — Oct 2026</span>
+            <h3>Founder's Office · Vegapay</h3>
+            <p>Led integration and rollout of Credit Line on UPI and credit card programs across banks and fintech partners. Owned prioritisation and P&amp;L for client change requests, managed 15+ go-lives across 6+ banks and partners, and built internal workflows with Claude Code.</p>
+            <ul class="exp-kpis" aria-label="Key results"><li><span class="kpi good down"><span class="kpi-arrow" aria-hidden="true">▼</span>30%<span class="visually-hidden"> decrease (an improvement)</span></span> implementation time</li><li><span class="kpi good up"><span class="kpi-arrow" aria-hidden="true">▲</span>25%<span class="visually-hidden"> increase (an improvement)</span></span> revenue in 2 quarters</li><li><span class="kpi good down"><span class="kpi-arrow" aria-hidden="true">▼</span>30%<span class="visually-hidden"> decrease (an improvement)</span></span> time to fix incidents</li><li><span class="kpi good down"><span class="kpi-arrow" aria-hidden="true">▼</span>25%<span class="visually-hidden"> decrease (an improvement)</span></span> production incidents</li></ul>
+          </li>
+          <li>
+            <span class="when">Nov 2025 — Feb 2026</span>
+            <h3>Associate Product Manager · Axion</h3>
+            <p>Led discovery and delivery of 10+ AI-enabled solution prototypes for healthcare customers, and standardised how solutions were deployed.</p>
+            <ul class="exp-kpis" aria-label="Key results"><li><span class="kpi good up"><span class="kpi-arrow" aria-hidden="true">▲</span>20%<span class="visually-hidden"> increase (an improvement)</span></span> qualified opportunities</li><li><span class="kpi good down"><span class="kpi-arrow" aria-hidden="true">▼</span>25%<span class="visually-hidden"> decrease (an improvement)</span></span> solution turnaround time</li></ul>
+          </li>
+          <li>
+            <span class="when">Jun 2024 — Oct 2025</span>
+            <h3>Associate Product Manager · Blenheim Chalcot India</h3>
+            <p>Owned roadmap and backlog across 12 releases in 3 quarters, redesigned onboarding, built a RAG chatbot with 95% accuracy, and led the CampaignCrafter AI agent proof of concept.</p>
+            <ul class="exp-kpis" aria-label="Key results"><li><span class="kpi good up"><span class="kpi-arrow" aria-hidden="true">▲</span>35%<span class="visually-hidden"> increase (an improvement)</span></span> sprint velocity</li><li><span class="kpi good down"><span class="kpi-arrow" aria-hidden="true">▼</span>40%<span class="visually-hidden"> decrease (an improvement)</span></span> support dependency</li><li><span class="kpi good up"><span class="kpi-arrow" aria-hidden="true">▲</span>15%<span class="visually-hidden"> increase (an improvement)</span></span> adoption</li><li><span class="kpi good down"><span class="kpi-arrow" aria-hidden="true">▼</span>65%<span class="visually-hidden"> decrease (an improvement)</span></span> content creation time</li></ul>
+          </li>
+          <li>
+            <span class="when">Aug 2023 — Aug 2024</span>
+            <h3>Research Intern · Copenhagen Business School</h3>
+            <p>With Prof. Dr. Rama Seth: evaluated IFC's startup programmes and projects in least-developed countries, and identified credit and currency gaps for MSMEs.</p>
+          </li>
+        </ul>
+      </section>
 
       <aside class="about-side" aria-label="Profile">
-        <figure class="about-photo" data-initials="JG">
-          <img src="/assets/img/jayant-goswami.jpg" srcset="/assets/img/jayant-goswami-360.jpg 360w, /assets/img/jayant-goswami.jpg 720w" sizes="(max-width: 860px) 280px, 360px" width="720" height="720" alt="Jayant Goswami">
-        </figure>
-        <div class="panel edu-panel">
-          <span class="tag type">Education</span>
-          <h3>Birla Institute of Technology and Science (BITS), Pilani</h3>
-          <p>B.E. Mechanical Engineering · 2020–2024</p>
-        </div>
-        <div class="panel">
-          <h3>Resume</h3>
-          <p>One page, updated October 2026.</p>
-          <div class="panel-actions">
-            <a class="btn btn-primary" href="/assets/Jayant-Goswami-Resume.pdf" download>Download resume ↓</a>
-            <a class="btn btn-ghost" href="https://www.linkedin.com/in/jayant-goswami/" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
+        <div class="panel profile-card">
+          <figure class="about-photo" data-initials="JG">
+            <img src="/assets/img/jayant-goswami.jpg" srcset="/assets/img/jayant-goswami-360.jpg 360w, /assets/img/jayant-goswami.jpg 720w" sizes="360px" width="720" height="720" alt="Jayant Goswami">
+          </figure>
+          <div>
+            <p class="profile-name"><strong>Jayant Goswami</strong></p>
+            <p class="profile-role">Product Manager · AI-native</p>
           </div>
         </div>
+
+        <div class="panel edu-panel tile">
+          <span class="tile-icon" aria-hidden="true">🎓</span>
+          <div>
+            <h3>BITS Pilani</h3>
+            <p>Birla Institute of Technology and Science</p>
+            <p>B.E. Mechanical Engineering</p>
+            <span class="pill">2020 – 2024</span>
+          </div>
+        </div>
+
+        <div class="panel tile">
+          <span class="tile-icon" aria-hidden="true">📄</span>
+          <div>
+            <h3>Resume</h3>
+            <p>PDF · 1 page</p>
+            <div class="panel-actions">
+              <a class="btn btn-primary btn-sm" href="/assets/Jayant-Goswami-Resume.pdf" download>Download ↓</a>
+              <a class="btn btn-ghost btn-sm" href="https://www.linkedin.com/in/jayant-goswami/" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
+            </div>
+          </div>
+        </div>
+
         <div class="panel">
           <h3>Skills</h3>
-          <p class="skill-label">Product</p>
-          <div class="chips"><span class="tag">Problem framing</span><span class="tag">Product strategy</span><span class="tag">PRDs</span><span class="tag">Roadmap prioritisation</span><span class="tag">Product metrics</span><span class="tag">A/B testing</span><span class="tag">Stakeholder management</span></div>
-          <p class="skill-label">AI</p>
-          <div class="chips"><span class="tag">AI prototyping</span><span class="tag">Functional PRDs with AI</span><span class="tag">Claude Code</span><span class="tag">RAG</span><span class="tag">AI agents</span></div>
-          <p class="skill-label">Domain &amp; tools</p>
-          <div class="chips"><span class="tag">Digital lending</span><span class="tag">Credit Line on UPI</span><span class="tag">Credit cards</span><span class="tag">API integrations</span><span class="tag">JIRA / Agile</span><span class="tag">Confluence</span></div>
+          <div class="skill-group"><h4><span aria-hidden="true">🧭</span> Product</h4><div class="chips"><span class="tag">Problem Framing</span><span class="tag">Product Strategy</span><span class="tag">PRDs</span><span class="tag">Roadmap Prioritisation</span><span class="tag">Product Metrics</span><span class="tag">A/B Testing</span><span class="tag">Stakeholder Management</span></div></div>
+          <div class="skill-group"><h4><span aria-hidden="true">🤖</span> AI</h4><div class="chips"><span class="tag">AI Prototyping</span><span class="tag">Functional PRDs with AI</span><span class="tag">Claude Code</span><span class="tag">RAG</span><span class="tag">AI Agents</span></div></div>
+          <div class="skill-group"><h4><span aria-hidden="true">🏦</span> Domain &amp; tools</h4><div class="chips"><span class="tag">Digital Lending</span><span class="tag">Credit Line on UPI</span><span class="tag">Credit Cards</span><span class="tag">API Integrations</span><span class="tag">JIRA / Agile</span><span class="tag">Confluence</span></div></div>
         </div>
       </aside>
     </div>

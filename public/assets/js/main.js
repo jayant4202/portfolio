@@ -55,6 +55,13 @@
       if (img.complete && img.naturalWidth === 0) fail();
     });
   });
+  safely("small-photos", function () {
+    document.querySelectorAll(".about-avatar-sm").forEach(function (img) {
+      function fail() { img.hidden = true; }
+      img.addEventListener("error", fail);
+      if (img.complete && img.naturalWidth === 0) fail();
+    });
+  });
   safely("photos", function () {
     document.querySelectorAll("figure[data-initials] img").forEach(function (img) {
       function fail() { img.closest("figure").classList.add("no-photo"); img.hidden = true; }
@@ -67,23 +74,16 @@
   safely("filters", function () {
     var filters = document.querySelectorAll("[data-filter]");
     if (!filters.length) return;
-    var status = document.querySelector("[data-filter-status]");
     var cards = document.querySelectorAll("[data-kind]");
     function apply(f) {
-      var shown = 0;
       filters.forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-filter") === f)); });
       cards.forEach(function (card) {
         var on = f === "all" || card.getAttribute("data-kind") === f;
         card.hidden = !on;
-        if (on) shown++;
       });
-      document.querySelectorAll("[data-group]").forEach(function (h) {
-        var section = h.closest("section");
-        if (section) section.hidden = !(f === "all" || h.getAttribute("data-group") === f);
+      document.querySelectorAll("section[data-group]").forEach(function (section) {
+        section.hidden = !(f === "all" || section.getAttribute("data-group") === f);
       });
-      if (status) {
-        status.textContent = f === "all" ? "Showing all " + shown : "Showing " + shown + " of " + cards.length;
-      }
     }
     filters.forEach(function (btn) {
       btn.addEventListener("click", function () { apply(btn.getAttribute("data-filter")); });
