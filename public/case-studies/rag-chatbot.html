@@ -31,7 +31,14 @@
       </ul>
       <div class="nav-actions">
         <a class="btn btn-primary btn-sm" href="https://www.linkedin.com/in/jayant-goswami/" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
-        <button class="icon-btn" type="button" data-theme-toggle aria-label="Toggle dark mode">◐</button>
+        <div class="theme-picker" data-theme-picker hidden>
+          <button class="icon-btn" type="button" data-theme-toggle aria-haspopup="menu" aria-expanded="false" aria-controls="theme-menu" aria-label="Change theme (current: Dark)"><span data-theme-icon aria-hidden="true">☾</span></button>
+          <div class="theme-menu" id="theme-menu" role="menu" aria-label="Theme" hidden>
+            <button type="button" role="menuitemradio" aria-checked="true" data-theme-option="dark"><span class="theme-ico" aria-hidden="true">☾</span>Dark</button>
+            <button type="button" role="menuitemradio" aria-checked="false" data-theme-option="light"><span class="theme-ico" aria-hidden="true">☀</span>Light</button>
+            <button type="button" role="menuitemradio" aria-checked="false" data-theme-option="system"><span class="theme-ico" aria-hidden="true">◐</span>System</button>
+          </div>
+        </div>
         <button class="icon-btn menu-toggle" type="button" data-menu-toggle aria-label="Open menu" aria-expanded="false">☰</button>
       </div>
     </nav>

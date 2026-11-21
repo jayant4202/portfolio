@@ -21,6 +21,10 @@ fail() { echo "BUILD FAILED: $*" >&2; exit 1; }
 if [[ ! "$SITE_URL" =~ ^https://[a-z0-9-]+(\.[a-z0-9-]+)+$ && ! "$SITE_URL" =~ ^http://localhost(:[0-9]+)?$ ]]; then
   fail "set SITE_URL to your domain, e.g. SITE_URL=https://jayantgoswami.com (no trailing slash)"
 fi
+if [[ "$SITE_URL" == *.pages.dev ]]; then
+  echo "WARNING: SITE_URL is a *.pages.dev address, so canonical links, the sitemap and security.txt will" >&2
+  echo "         point there instead of your custom domain. Set SITE_URL=https://jayantgoswami.com." >&2
+fi
 
 rm -rf "${OUT:?}"
 mkdir -p "$OUT"
@@ -48,6 +52,18 @@ stamp() { # stamp <asset path> <files to rewrite...>
 CSS_FILES=$(find "$OUT/assets/css" -name '*.css' 2>/dev/null || true)
 for img in $(cd "$OUT" && find assets/img -type f | sed 's#^#/#'); do stamp "$img" $HTML_FILES $CSS_FILES; done
 for asset in $(cd "$OUT" && find assets/css assets/js -type f | sed 's#^#/#'); do stamp "$asset" $HTML_FILES; done
+
+# 2c. Subresource Integrity: browsers refuse a stylesheet or script whose bytes don't match the hash
+#     baked into the page, so a tampered or corrupted file can never run.
+for asset in $(cd "$OUT" && find assets/css assets/js -type f \( -name '*.css' -o -name '*.js' \) | sed 's#^#/#'); do
+  sri="sha384-$(openssl dgst -sha384 -binary "$OUT$asset" | openssl base64 -A)"
+  for f in $HTML_FILES; do
+    sed -i.bak -E "s#((href|src)=\"${asset//./\\.}\?v=[0-9]+\")#\1 integrity=\"${sri}\"#g" "$f" && rm -f "$f.bak"
+  done
+done
+missing_sri=$(grep -hoE '<(script|link)[^>]*(src|href)="/assets/(css|js)/[^"]*"[^>]*>' $HTML_FILES | grep -v 'integrity="sha384-' || true)
+[[ -z "$missing_sri" ]] || fail "stylesheet or script without an integrity hash:
+$missing_sri"
 
 # 3. Every outside link must be on the allow-list (no surprise redirects to other sites).
 bad=$(grep -hoE '(href|src|action|content|data-demo-url)="https?://[^"]+"' $HTML_FILES \
@@ -97,6 +113,33 @@ while IFS= read -r pdf; do
 done < <(find "$OUT" -name '*.pdf')
 while IFS= read -r big; do fail "file over ${MAX_FILE_MB} MB (Cloudflare limit): $big"; done \
   < <(find "$OUT" -type f -size +"${MAX_FILE_MB}"M)
+
+# 6b. Edge code: its security headers must match public/_headers exactly, the routes file must be valid,
+#     and Functions may not call any network (the only fetch allowed is the site's own asset store).
+HEADERS_JS=lib/edge/security-headers.js
+if [[ -d functions ]]; then
+  [[ -f "$HEADERS_JS" ]] || fail "$HEADERS_JS is missing"
+  n=0
+  while IFS= read -r line; do
+    name="${line%%: *}"; value="${line#*: }"; value="${value//\"/\\\"}"
+    grep -qF "\"${name}\": \"${value}\"" "$HEADERS_JS" \
+      || fail "security header '${name}' differs between public/_headers and ${HEADERS_JS}"
+    n=$((n+1))
+  done < <(awk '/^\/\*$/{on=1;next} on&&/^[^ ]/{on=0} on&&/^  [A-Za-z-]+: /{sub(/^  /,"");print}' public/_headers)
+  js_n=$(grep -cE '^  "[A-Za-z-]+": ' "$HEADERS_JS" || true)
+  [[ "$n" -gt 0 && "$n" == "$js_n" ]] || fail "public/_headers has ${n} global headers but ${HEADERS_JS} has ${js_n}"
+  if grep -rnE '(^|[^A-Za-z_.])fetch\(' functions lib | grep -v 'env\.ASSETS\.fetch('; then
+    fail "edge code must not make outbound network calls"
+  fi
+  [[ -f "$OUT/_routes.json" ]] || fail "public/_routes.json is missing (it keeps static assets off Functions)"
+  if ruby -e '' 2>/dev/null; then
+    ruby -rjson -e 'r = JSON.parse(File.read(ARGV[0])); exit(r["version"] == 1 && !r["include"].empty? ? 0 : 1)' "$OUT/_routes.json" \
+      || fail "public/_routes.json is not valid"
+  elif python3 -c '' 2>/dev/null; then
+    python3 -c 'import json,sys; r=json.load(open(sys.argv[1])); sys.exit(0 if r["version"]==1 and r["include"] else 1)' "$OUT/_routes.json" \
+      || fail "public/_routes.json is not valid"
+  fi
+fi
 
 # 7. Only files a website should serve.
 if find "$OUT" -type f \( -name '*.sh' -o -name '*.md' -o -name '.env*' -o -name '*.key' -o -name '*.pem' \) | grep .; then

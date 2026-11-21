@@ -15,16 +15,63 @@
   }
 
   /* ---------- Theme toggle ---------- */
+  // Dark is the default; visitors can pick Light or System (follow the device). The picker is hidden
+  // in the HTML and only revealed here, so visitors without JavaScript never see a dead button.
   safely("theme", function () {
-    var btn = document.querySelector("[data-theme-toggle]");
-    if (!btn) return;
-    btn.addEventListener("click", function () {
-      var dark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-      var current = root.getAttribute("data-theme") || (dark ? "dark" : "light");
-      var next = current === "dark" ? "light" : "dark";
-      root.setAttribute("data-theme", next);
-      try { localStorage.setItem("theme", next); } catch (e) { /* private mode: theme still applies this visit */ }
+    var picker = document.querySelector("[data-theme-picker]");
+    if (!picker) return;
+    var btn = picker.querySelector("[data-theme-toggle]");
+    var menu = picker.querySelector('[role="menu"]');
+    var icon = picker.querySelector("[data-theme-icon]");
+    var options = Array.prototype.slice.call(picker.querySelectorAll("[data-theme-option]"));
+    var THEMES = { dark: { icon: "☾", label: "Dark" }, light: { icon: "☀", label: "Light" }, system: { icon: "◐", label: "System" } };
+
+    function current() { var t = root.getAttribute("data-theme"); return THEMES[t] ? t : "dark"; }
+    function render() {
+      var t = current();
+      options.forEach(function (o) { o.setAttribute("aria-checked", String(o.getAttribute("data-theme-option") === t)); });
+      if (icon) icon.textContent = THEMES[t].icon;
+      btn.setAttribute("aria-label", "Change theme (current: " + THEMES[t].label + ")");
+    }
+    function open(focusChecked) {
+      menu.hidden = false;
+      btn.setAttribute("aria-expanded", "true");
+      if (focusChecked) (picker.querySelector('[aria-checked="true"]') || options[0]).focus();
+    }
+    function close(returnFocus) {
+      if (menu.hidden) return;
+      menu.hidden = true;
+      btn.setAttribute("aria-expanded", "false");
+      if (returnFocus) btn.focus();
+    }
+    function choose(t) {
+      if (!THEMES[t]) return;
+      root.setAttribute("data-theme", t);
+      try { localStorage.setItem("theme", t); } catch (e) { /* private mode: applies for this visit only */ }
+      render();
+    }
+
+    btn.addEventListener("click", function () { menu.hidden ? open(false) : close(false); });
+    btn.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); open(true); }
     });
+    options.forEach(function (o, i) {
+      o.addEventListener("click", function () { choose(o.getAttribute("data-theme-option")); close(true); });
+      o.addEventListener("keydown", function (e) {
+        var step = e.key === "ArrowDown" ? 1 : e.key === "ArrowUp" ? -1 : 0;
+        if (step) { e.preventDefault(); options[(i + step + options.length) % options.length].focus(); }
+        else if (e.key === "Home") { e.preventDefault(); options[0].focus(); }
+        else if (e.key === "End") { e.preventDefault(); options[options.length - 1].focus(); }
+        else if (e.key === "Tab") close(false);
+      });
+    });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(true); });
+    document.addEventListener("click", function (e) { if (!picker.contains(e.target)) close(false); });
+    // Keep tabs in sync if the theme is changed in another tab.
+    window.addEventListener("storage", function (e) { if (e.key === "theme" && THEMES[e.newValue]) { root.setAttribute("data-theme", e.newValue); render(); } });
+
+    render();
+    picker.hidden = false;
   });
 
   /* ---------- Mobile menu ---------- */

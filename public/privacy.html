@@ -31,7 +31,14 @@
       </ul>
       <div class="nav-actions">
         <a class="btn btn-primary btn-sm" href="https://www.linkedin.com/in/jayant-goswami/" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
-        <button class="icon-btn" type="button" data-theme-toggle aria-label="Toggle dark mode">◐</button>
+        <div class="theme-picker" data-theme-picker hidden>
+          <button class="icon-btn" type="button" data-theme-toggle aria-haspopup="menu" aria-expanded="false" aria-controls="theme-menu" aria-label="Change theme (current: Dark)"><span data-theme-icon aria-hidden="true">☾</span></button>
+          <div class="theme-menu" id="theme-menu" role="menu" aria-label="Theme" hidden>
+            <button type="button" role="menuitemradio" aria-checked="true" data-theme-option="dark"><span class="theme-ico" aria-hidden="true">☾</span>Dark</button>
+            <button type="button" role="menuitemradio" aria-checked="false" data-theme-option="light"><span class="theme-ico" aria-hidden="true">☀</span>Light</button>
+            <button type="button" role="menuitemradio" aria-checked="false" data-theme-option="system"><span class="theme-ico" aria-hidden="true">◐</span>System</button>
+          </div>
+        </div>
         <button class="icon-btn menu-toggle" type="button" data-menu-toggle aria-label="Open menu" aria-expanded="false">☰</button>
       </div>
     </nav>
@@ -41,7 +48,9 @@
     <article class="article">
       <h1>Privacy</h1>
       <p>This site has no accounts, no forms, no cookies, no ads and no third-party trackers. It doesn't collect any personal information from visitors.</p>
-      <p>Your light or dark theme choice is saved only in your own browser. Like any website host, our hosting provider may keep standard server logs for security.</p>
+      <p>Your theme choice (dark, light or system) is saved only in your own browser.</p>
+      <h2>Technical logs</h2>
+      <p>To keep the site reliable and secure, each page request produces a short technical log entry: the page address (without any query string), the time, the response status, the approximate country and data centre, and a shortened browser description. IP addresses, cookies and form data are never logged. These entries are viewed live for troubleshooting and are not stored. If your browser reports a blocked script or resource on this site, that report is logged the same way. The hosting provider, Cloudflare, also processes standard request data to protect the site from attacks and bots.</p>
       <h2>Contact</h2>
       <p>Questions? Reach me on <a href="https://www.linkedin.com/in/jayant-goswami/" target="_blank" rel="noopener noreferrer">LinkedIn</a>.</p>
     </article>

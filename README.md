@@ -1,78 +1,107 @@
-# Portfolio — Jayant Goswami, Product Manager (Fintech & AI)
+# jayantgoswami.com
 
-A fast, fully static portfolio. No framework, no server code, no npm dependencies, no API keys —
-which keeps the attack surface as small as it can be.
+Source for [jayantgoswami.com](https://jayantgoswami.com), the portfolio of Jayant Goswami, product manager.
+
+The site is static HTML, CSS and vanilla JavaScript, served from Cloudflare Pages. A thin edge
+middleware adds request tracing and keeps security headers in place. It has no framework, no npm
+dependencies, no third-party scripts, no cookies and no secrets. Every design choice favours a small
+attack surface and a build that fails before anything unsafe can ship.
+
+| | |
+|---|---|
+| **Hosting** | Cloudflare Pages (static assets + Pages Functions middleware) |
+| **Build** | `bash build.sh`, a single dependency-free script that also acts as the release gate |
+| **Runtime JS** | ~200 lines, progressive enhancement only; the site works fully without it |
+| **Security** | Strict CSP with Trusted Types, SRI, HSTS, COOP/COEP/CORP, an allow-listed outbound-link policy |
+| **Observability** | W3C trace IDs per request, structured JSON logs, CSP violation reports linked to traces |
+
+## Documentation
+
+| Document | What it covers |
+|---|---|
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Components, request lifecycle, design decisions and trade-offs |
+| [SECURITY.md](SECURITY.md) | Reporting a vulnerability, threat model, every control and why it exists |
+| [docs/OBSERVABILITY.md](docs/OBSERVABILITY.md) | Trace model, log schema, how to read logs, correlating browser reports |
+| [docs/OPERATIONS.md](docs/OPERATIONS.md) | Deploy, rollback, Cloudflare configuration, recurring tasks, incident runbooks |
+
+## Repository layout
 
 ```
-public/                 Everything that gets published
-  index.html            Home: intro, photo, stats, featured case studies, assignments, demo
-  work.html             All case studies + assignments, with filters
-  demos.html            CampaignCrafter demo video
-  about.html            Photo, bio, experience, education, skills, hobbies, resume
-  case-studies/*.html   One page per case study (copy _template.html)
-  assignments/*.html    One page per assignment, linking to its PDF in assets/docs/
-  assets/               CSS, JS, images, PDFs, resume, video (keep files under 25 MB)
-  _headers              Security headers (CSP, HSTS, etc.)
-  robots.txt, sitemap.xml  For search engines
-build.sh                Safety-checked build: public/ -> dist/ with your domain filled in
+public/                     Everything served to visitors (copied to dist/ by the build)
+  *.html                    Top-level pages: home, work, demos, about, privacy, 404
+  case-studies/             One page per case study (_template.html is the starting point)
+  assignments/              One page per assignment; source PDFs live in assets/docs/
+  assets/css/style.css      Single stylesheet; design tokens at the top, theme rules below
+  assets/js/theme.js        Applies the saved theme before first paint (render-blocking by design)
+  assets/js/main.js         All other behaviour; each feature isolated in its own error boundary
+  assets/img|video|docs/    Media and downloadable documents
+  _headers                  Security and caching headers for static responses
+  _routes.json              Which paths run through Functions (static assets bypass them)
+  robots.txt, sitemap.xml   Crawler policy, including AI-training opt-out
+  .well-known/security.txt  RFC 9116 security contact
+functions/
+  _middleware.js            Edge middleware: tracing, header baseline, host canonicalisation, fail-open
+  api/report.js             POST /api/report: receives CSP violation reports
+lib/edge/                   Shared edge modules (kept outside functions/ so they never become routes)
+  security-headers.js       Header baseline, which must match public/_headers (build-enforced)
+  trace.js                  Trace context, sanitisation helpers, structured logger
+build.sh                    Build + release gate (see below)
+docs/                       Engineering documentation
 ```
 
-`build.sh` refuses to build if any page links to a site that isn't on its allow-list, uses an
-unsafe or redirecting link, has a broken internal link, if a PDF contains scripts or other active
-content, or if a non-website file (like `.env`) ends up in `public/`. A failed build means nothing
-gets deployed, so the live site stays on its last good version.
+## Local development
 
-## Updating the site
+Requirements: bash, openssl and Ruby (all preinstalled on macOS and on the Cloudflare build image).
 
-- **Resume:** replace `public/assets/Jayant-Goswami-Resume.pdf` (keep the file name).
-- **Photo:** replace `public/assets/img/jayant-goswami.jpg` (720×720) and `jayant-goswami-360.jpg` (360×360).
-- **Add a case study or assignment:** copy `public/case-studies/_template.html`, edit it, add a card
-  to `public/work.html` (and update the counts on the filter buttons), and add its URL to
-  `public/sitemap.xml`. PDFs go in `public/assets/docs/`.
-- **`<!-- ADD: ... -->` notes** in the case-study pages mark details only you can fill in.
+```bash
+SITE_URL=http://localhost:8080 bash build.sh && ruby -run -e httpd dist -p 8080
+```
 
-- **Results with trend arrows:** copy an existing result chip and change the number. The classes set
-  the look: `kpi good up` (green ▲), `kpi good down` (green ▼, e.g. a time reduction),
-  `kpi bad up` / `kpi bad down` (red), `kpi neutral` (no arrow, e.g. "95%").
+Open http://localhost:8080. The local server applies neither `_headers` nor Functions. To test
+under the production CSP, see "Testing" in [docs/OPERATIONS.md](docs/OPERATIONS.md#testing).
 
-      <span class="kpi good down"><span class="kpi-arrow" aria-hidden="true">▼</span>30%<span class="visually-hidden"> decrease (an improvement)</span></span>
-- **Tags and skills** use Title Case (e.g. "API Integrations"); headings and buttons use sentence case.
-- **Once a year:** update the `Expires` date in `public/.well-known/security.txt`.
+## The build is the release gate
 
-Then commit and push in GitHub Desktop. Cloudflare rebuilds and republishes in about a minute.
-`build.sh` stamps every CSS, JS and image link with a content fingerprint, so visitors always get the
-new styles right after a deploy (no stale-cache layout glitches).
+`build.sh` copies `public/` to `dist/`, injects the real domain, and fingerprints every CSS, JS and
+image reference with a content hash. It adds Subresource Integrity hashes to every stylesheet and
+script. It then **refuses to produce output** if any of these checks fail:
 
-## Hosting (Cloudflare Pages)
+| Check | Prevents |
+|---|---|
+| `SITE_URL` is a valid https origin (warns if it's a `*.pages.dev` address) | Canonical URLs and the sitemap pointing at the wrong host |
+| Every outbound URL is on the allow-list | Links or redirects to unexpected sites |
+| No `javascript:`/`data:` links, meta refresh, inline styles or handlers | Script injection, CSP breakage |
+| `target="_blank"` always has `rel="noopener"` | Reverse tabnabbing |
+| Structural tags are balanced on every page | Silent layout breakage |
+| Every internal link and asset exists | 404s |
+| Every stylesheet and script carries an SRI hash | Running tampered assets |
+| PDFs are real PDFs with no JavaScript, launch actions, embedded files or unsafe links | Malicious downloads |
+| Edge header baseline matches `_headers` exactly | Pages served without protections via Functions |
+| `_routes.json` is valid; edge code makes no outbound `fetch` | Cost blow-ups, data exfiltration |
+| No file over 25 MB; no `.env`, keys, scripts or Markdown in the output | Deploy failures, secret leaks |
 
-- Build command: `bash build.sh` · Output directory: `dist`
-- Environment variable: `SITE_URL` = `https://your-domain` (no trailing slash)
-- Custom domain: Pages project → Custom domains.
+A failed build deploys nothing, so the last good version stays live.
 
-The site no longer has a live AI demo, so it needs no API keys, KV storage or other secrets.
+## Making changes
 
-## Security notes
+- **Content:** edit the HTML in `public/`. To add a case study, copy `case-studies/_template.html`,
+  add a card to `work.html` (and update the filter counts), and add the URL to `sitemap.xml`.
+  `<!-- ADD: ... -->` comments mark details still to be filled in.
+- **Resume / photo:** replace the file under `public/assets/` and keep the same name; cache
+  fingerprints update automatically.
+- **Result chips:** the class sets the meaning, not the arrow. Green means good, red means bad:
+  `kpi good up`, `kpi good down` (a reduction that's good, such as time saved), `kpi bad up|down`,
+  `kpi neutral`. Always include the visually hidden text for screen readers:
 
-What's in place:
-- Static HTML only — no server code, forms, accounts, cookies or trackers.
-- Strict Content-Security-Policy: no inline code, no third-party scripts, no network calls, no
-  embedded frames, no form submissions. Plus HSTS, clickjacking protection, `nosniff` and a
-  locked-down Permissions-Policy.
-- The only outside site any page links to is LinkedIn, enforced by `build.sh`.
-- All downloadable PDFs were scanned: no scripts, auto-run actions or embedded files.
+  ```html
+  <span class="kpi good down"><span class="kpi-arrow" aria-hidden="true">▼</span>30%<span class="visually-hidden"> decrease (an improvement)</span></span>
+  ```
+- **Copy style:** Title Case for tags and skills ("API Integrations"); sentence case for headings
+  and buttons.
+- **Headers:** change `public/_headers` and `lib/edge/security-headers.js` together. The build
+  fails if they differ.
+- **New outbound link:** add it to `ALLOWED_EXTERNAL` in `build.sh` deliberately; the build rejects
+  anything else.
 
-Keep doing:
-- 2FA on GitHub, Cloudflare and your domain registrar.
-- Check your headers occasionally at securityheaders.com (target: A or A+).
-- Never commit `.env` files (already in `.gitignore`).
-
-## Run locally
-
-    SITE_URL=http://localhost:8080 bash build.sh && ruby -run -e httpd dist -p 8080
-
-Then open http://localhost:8080.
-
-## Get found on Google
-
-- Google Search Console → add your domain → submit `https://your-domain/sitemap.xml`.
-- Put the site link in your LinkedIn "Featured" and "Contact info" sections.
+Deploys: push to `main`, and Cloudflare Pages builds and publishes in about a minute. See
+[docs/OPERATIONS.md](docs/OPERATIONS.md) for settings, rollback and recurring maintenance.
