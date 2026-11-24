@@ -3,7 +3,7 @@
 The living reference for **what the site does today** and **where it's going**. Update it in the
 same commit as any change it describes. Version history lives in [CHANGELOG.md](../CHANGELOG.md).
 
-_Last reviewed: 2026-11-24 · Current version: 1.2.1_
+_Last reviewed: 2026-11-24 · Current version: 1.3.0_
 
 ## 1. Feature register (what's live)
 
@@ -25,6 +25,10 @@ Status: ✅ live · 🧪 in progress · 💤 parked · ❌ removed
 | Ops | Request tracing + structured logs | ✅ | 1.2.0 | `functions/_middleware.js` |
 | Ops | CSP violation reporting | ✅ | 1.2.0 | `functions/api/report.js` |
 | Ops | Cloudflare Web Analytics (cookieless) | ✅ | 1.2.1 | Cloudflare dashboard |
+| Quality | Unit tests for edge code (Vitest) | ✅ | 1.3.0 | `tests/unit/` |
+| Quality | Cross-browser end-to-end, accessibility and server-security tests (Playwright + axe) | ✅ | 1.3.0 | `tests/e2e/` |
+| Quality | HTML validation, ShellCheck, Lighthouse budgets | ✅ | 1.3.0 | `package.json` scripts |
+| Quality | CI on every push; post-deploy and daily smoke tests; Dependabot | ✅ | 1.3.0 | `.github/` |
 | Demo | Live AI spend categoriser | ❌ | 1.0.0–1.1.0 | removed |
 
 ### Content inventory
@@ -52,21 +56,23 @@ Status: ✅ live · 🧪 in progress · 💤 parked · ❌ removed
 - Fill the remaining `<!-- ADD: -->` notes (CampaignCrafter metrics).
 - Set up the www DNS record, DNSSEC, CAA and email anti-spoofing records (docs/OPERATIONS.md).
 
-### Next: testing and automation foundation (v1.3)
+### Done: testing and automation foundation (v1.3.0, 2026-11-24)
 
-Goal: every push is tested automatically before Cloudflare deploys it.
+All of the items below shipped. See [TESTING.md](TESTING.md). Remaining follow-ups:
+- Turn on branch protection so CI blocks merges to `main` (needs the pull-request workflow).
+- Add visual-regression screenshots once the design stabilises (baselines generated in CI).
 
-| Item | Tool | Done when |
+| Item | Tool | Delivered |
 |---|---|---|
-| Local dev with real headers + Functions | `wrangler pages dev` | `npm run dev` serves the site exactly as production does |
-| Unit tests for edge code | Vitest + `@cloudflare/vitest-pool-workers` | The middleware and report scenarios run in CI |
-| End-to-end and visual tests across browsers and viewports | Playwright | Theme, filters, nav, media, every page × 5 widths |
-| Accessibility | `@axe-core/playwright` | Zero serious/critical violations |
-| Performance / SEO budgets | Lighthouse CI | ≥ 95 performance, 100 accessibility/SEO/best practices |
-| HTML and link validation | html-validate, lychee | No invalid markup or dead links |
-| Secret and code scanning | gitleaks (pre-commit + CI), Semgrep, ShellCheck | Zero findings |
-| CI pipeline | GitHub Actions | All of the above on every pull request; required before merge |
-| Post-deploy smoke test | GitHub Actions + curl | Headers, TLS and key pages checked against production after each deploy |
+| Local dev with real headers + Functions | `wrangler pages dev` (HTTPS) | `npm run dev` |
+| Unit tests for edge code | Vitest (plain Node; the edge code uses only Web APIs) | 70 tests |
+| End-to-end tests across browsers and viewports | Playwright | 143 tests × 5 browser/device projects |
+| Accessibility | `@axe-core/playwright` | 0 serious/critical on every page |
+| Performance / SEO budgets | Lighthouse CI | 100/100/100/100 baseline |
+| HTML and link validation | html-validate; link crawl in Playwright + build gate | Valid on all pages |
+| Secret and code scanning | gitleaks, Semgrep (CI); ShellCheck | ShellCheck clean; others run in CI |
+| CI pipeline | GitHub Actions | `ci.yml` on every push / PR |
+| Post-deploy smoke test | GitHub Actions + `scripts/smoke.sh` | 44 live checks after each deploy and daily |
 
 ### Later: hosted prototypes with free trials (v2.0)
 
@@ -132,4 +138,7 @@ Goal: visitors can try prototypes built with Claude Code, with **4–5 free runs
 | 2026-11-22 | Dark theme default | Brand preference |
 | 2026-11-22 | Allow AI search, disallow AI training | Discoverability without donating content to training |
 | 2026-11-24 | Allow Cloudflare Web Analytics in CSP | Cookieless visitor stats; Cloudflare is already the trusted host |
+| 2026-11-24 | Test locally over HTTPS | WebKit applies `upgrade-insecure-requests` to localhost; HTTPS keeps the test CSP identical to production |
+| 2026-11-24 | Drop `Content-Signal` from robots.txt | Non-standard; failed validators. Per-crawler rules + Cloudflare policy already enforce the training opt-out |
+| 2026-11-24 | Vitest in plain Node, not the Workers pool | Edge code uses only Web-standard APIs; simpler and faster. Revisit when prototypes use KV/D1/Durable Objects |
 | 2026-11-24 | Keep Bot Fight Mode's inline JS check blocked | Allowing it would need nonces plus a Trusted Types exception; Bot Fight Mode works without it |

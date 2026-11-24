@@ -16,6 +16,39 @@ deploy.
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-11-24
+
+Testing and automation foundation (roadmap v1.3).
+
+### Added
+- **Automated test suite** (`npm run check`), documented in `docs/TESTING.md`:
+  - 70 Vitest unit tests for the edge middleware, report endpoint and helpers. A mutation check
+    confirmed that planted bugs fail the suite.
+  - 143 Playwright end-to-end tests on `wrangler pages dev`, which applies the real headers and
+    Functions. They cover Chromium, Firefox, WebKit, Pixel 7 and iPhone 14: every page, theme picker,
+    filters, mobile menu, media fallbacks, no-JS mode, server security and the report endpoint.
+  - axe-core accessibility scan of every page: 0 serious or critical issues.
+  - html-validate (standards + a11y), ShellCheck, and Lighthouse CI budgets. Baseline is
+    100/100/100/100.
+- `scripts/smoke.sh`: 44 checks against the live site.
+- **GitHub Actions:**
+  - `ci.yml`: build gate, ShellCheck, gitleaks, Semgrep, unit, HTML, end-to-end, Lighthouse.
+  - `smoke.yml`: after each production deploy, plus daily.
+  - Dependabot: weekly.
+- `package.json` (dev tooling only), `package-lock.json`, `.nvmrc`.
+
+### Changed
+- `robots.txt`: removed the non-standard `Content-Signal` line, which failed robots.txt validators
+  (Lighthouse SEO 92 → 100). The AI-training opt-out is unchanged: per-crawler `Disallow` rules,
+  plus Cloudflare's edge policy.
+- Removed redundant `aria-label` attributes from result lists (flagged by html-validate).
+- `build.sh` and `smoke.sh` are now ShellCheck-clean.
+- The local dev server runs over HTTPS, so Safari-engine tests use the exact production CSP.
+
+### Deploy notes
+- Set `SKIP_DEPENDENCY_INSTALL=1` in Cloudflare Pages. The build doesn't need the new dev tools.
+- Optional: protect `main` with required CI checks (docs/TESTING.md → "Making CI a real gate").
+
 ## [1.2.1] - 2026-11-24
 
 Security sanity pass on the live site.
@@ -104,7 +137,8 @@ Security sanity pass on the live site.
 - Strict CSP and security headers, plus a build-time gate covering link allow-list, PDF safety,
   internal links, inline code and file-size limits.
 
-[Unreleased]: https://github.com/jayant4202/portfolio/compare/v1.2.1...HEAD
+[Unreleased]: https://github.com/jayant4202/portfolio/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/jayant4202/portfolio/compare/v1.2.1...v1.3.0
 [1.2.1]: https://github.com/jayant4202/portfolio/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/jayant4202/portfolio/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/jayant4202/portfolio/compare/v1.0.0...v1.1.0

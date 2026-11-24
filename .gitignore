@@ -4,3 +4,8 @@
 .wrangler/
 node_modules/
 dist/
+test-results/
+playwright-report/
+blob-report/
+.lighthouseci/
+coverage/

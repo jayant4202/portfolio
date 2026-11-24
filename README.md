@@ -23,6 +23,7 @@ attack surface and a build that fails before anything unsafe can ship.
 | [SECURITY.md](SECURITY.md) | Reporting a vulnerability, threat model, every control and why it exists |
 | [docs/OBSERVABILITY.md](docs/OBSERVABILITY.md) | Trace model, log schema, how to read logs, correlating browser reports |
 | [docs/OPERATIONS.md](docs/OPERATIONS.md) | Deploy, rollback, Cloudflare configuration, recurring tasks, incident runbooks |
+| [docs/TESTING.md](docs/TESTING.md) | Test layers, Mac setup, everyday commands, CI pipelines, adding tests |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Feature register, content inventory, roadmap (testing automation, hosted prototypes with trials), decision log |
 | [CHANGELOG.md](CHANGELOG.md) | Versioned release history; every deploy is tagged `vX.Y.Z` |
 
@@ -48,19 +49,27 @@ lib/edge/                   Shared edge modules (kept outside functions/ so they
   security-headers.js       Header baseline, which must match public/_headers (build-enforced)
   trace.js                  Trace context, sanitisation helpers, structured logger
 build.sh                    Build + release gate (see below)
+scripts/smoke.sh            Live-site smoke test (run after every deploy and daily by CI)
+tests/unit/                 Vitest unit tests for the edge code
+tests/e2e/                  Playwright end-to-end, accessibility and server-security tests
+.github/                    CI, post-deploy smoke test, Dependabot
+package.json                Dev tooling only (tests, linters, local server); nothing ships to visitors
 docs/                       Engineering documentation
 ```
 
 ## Local development
 
-Requirements: bash, openssl and Ruby (all preinstalled on macOS and on the Cloudflare build image).
+Requirements: Node.js 22 (`.nvmrc`), plus bash and openssl. Full setup is in [docs/TESTING.md](docs/TESTING.md).
 
 ```bash
-SITE_URL=http://localhost:8080 bash build.sh && ruby -run -e httpd dist -p 8080
+npm ci && npx playwright install   # once
+npm run dev                        # https://localhost:8788, served exactly as Cloudflare does
+npm run check                      # lint + unit + end-to-end tests; run before every push
 ```
 
-Open http://localhost:8080. The local server applies neither `_headers` nor Functions. To test
-under the production CSP, see "Testing" in [docs/OPERATIONS.md](docs/OPERATIONS.md#testing).
+`npm run dev` uses `wrangler pages dev`, so `_headers`, `_routes.json` and the edge middleware all
+apply locally. The site itself still has zero runtime dependencies: `build.sh` needs only bash and
+openssl.
 
 ## The build is the release gate
 

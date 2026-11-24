@@ -1,0 +1,15 @@
+# Weekly update PRs for the dev tooling and the GitHub Actions used in CI. Nothing here ships to
+# visitors; CI must pass before merging an update.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      dev-tooling:
+        patterns: ["*"]
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly

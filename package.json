@@ -1,0 +1,33 @@
+{
+  "name": "jayantgoswami-portfolio",
+  "version": "1.3.0",
+  "private": true,
+  "description": "Source for jayantgoswami.com. Dev tooling only: nothing here ships to visitors.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "SITE_URL=https://jayantgoswami.com bash build.sh",
+    "build:local": "SITE_URL=http://localhost:8788 bash build.sh",
+    "dev": "npm run build:local && wrangler pages dev dist --port 8788 --compatibility-date=2025-01-01 --local-protocol=https",
+    "test": "npm run test:unit && npm run test:e2e",
+    "test:unit": "vitest run",
+    "test:e2e": "npm run build:local && playwright test",
+    "test:e2e:ui": "npm run build:local && playwright test --ui",
+    "lint": "npm run lint:html && npm run lint:sh",
+    "lint:html": "npm run build:local && html-validate \"dist/**/*.html\"",
+    "lint:sh": "shellcheck build.sh scripts/*.sh",
+    "lighthouse": "npm run build:local && lhci autorun",
+    "smoke": "bash scripts/smoke.sh https://jayantgoswami.com",
+    "check": "npm run lint && npm run test"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@lhci/cli": "^0.16.1",
+    "@playwright/test": "^1.65.1",
+    "html-validate": "^11.21.1",
+    "vitest": "^5.1.1",
+    "wrangler": "^4.168.0"
+  }
+}

@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# HTML_FILES, CSS_FILES and other file lists are deliberately unquoted so they split into one argument
+# per file. Every path is build-controlled, and step 2b fails the build on names it cannot handle.
+# shellcheck disable=SC2086
 # Builds the deployable site from public/ into dist/ (or $OUT).
 # It refuses to build — so nothing gets deployed — if anything could send visitors to the wrong
 # website, break a page, or ship unsafe content.
@@ -97,7 +100,7 @@ for page in $HTML_FILES; do
   for tag in div section article main aside header footer nav ul ol figure; do
     open=$( { printf "%s" "$stripped" | grep -oE "<${tag}[ >]" || true; } | wc -l | tr -d " ")
     close=$( { printf "%s" "$stripped" | grep -oE "</${tag}>" || true; } | wc -l | tr -d " ")
-    [[ "$open" == "$close" ]] || fail "unclosed <${tag}> in ${page#$OUT} (${open} opened, ${close} closed)"
+    [[ "$open" == "$close" ]] || fail "unclosed <${tag}> in ${page#"$OUT"} (${open} opened, ${close} closed)"
   done
 done
 

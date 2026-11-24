@@ -3,7 +3,6 @@
 # "AI Crawler and Agent access policies" and AI Labyrinth enforce this at the edge (see SECURITY.md).
 
 User-agent: *
-Content-Signal: search=yes, ai-input=yes, ai-train=no
 Allow: /
 Disallow: /api/
 Disallow: /case-studies/_template.html

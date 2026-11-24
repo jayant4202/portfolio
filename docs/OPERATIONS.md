@@ -11,6 +11,7 @@ Push to `main`. Cloudflare Pages runs `bash build.sh` and publishes `dist/` alon
 | Build output directory | `dist` |
 | Root directory | *(repository root)* |
 | Environment variable (Production) | `SITE_URL` = `https://jayantgoswami.com` (no trailing slash) |
+| Environment variable (Production and Preview) | `SKIP_DEPENDENCY_INSTALL` = `1`. `package.json` holds dev-only test tools and the build needs none of them; skipping the install makes deploys faster and removes npm as a deploy-time dependency |
 | Settings → Runtime → Fail open / closed | **Fail open** (static pages keep serving if the Functions quota is ever exhausted) |
 | Custom domains | `jayantgoswami.com` and `www.jayantgoswami.com` (the middleware 301s `www` to the apex) |
 
@@ -38,16 +39,8 @@ so the next push doesn't redeploy it.
 
 ## Testing
 
-The local server applies neither `_headers` nor Functions. To check pages under the real policy,
-before pushing:
-
-1. `SITE_URL=http://localhost:8080 bash build.sh`
-2. Serve `dist/` and open each page with the CSP copied from `public/_headers` into a
-   `<meta http-equiv="Content-Security-Policy">` tag. Drop `frame-ancestors` and `report-*`,
-   which meta tags don't support. Then listen for `securitypolicyviolation` events.
-3. The edge modules are standard ES modules using Web APIs only. They can be imported in a browser
-   and driven with mock `context` objects (`request`, `env.ASSETS`, `next`) to exercise redirects,
-   405s, fallbacks, timeouts and report parsing.
+See [TESTING.md](TESTING.md). In short: run `npm run check` before pushing; GitHub Actions runs
+the same suite on every push, and `smoke.yml` checks the live site after each deploy.
 
 After deploying, use a **preview deployment** (any non-`main` branch) to confirm headers and
 Functions behaviour on real Cloudflare infrastructure. Preview hosts are automatically `noindex`.

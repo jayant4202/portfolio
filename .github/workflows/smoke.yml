@@ -1,0 +1,27 @@
+# Checks the live site after every production deploy, and once a day to catch drift (expired
+# certificates or security.txt, dashboard changes, Cloudflare-side regressions).
+name: Production smoke test
+
+on:
+  deployment_status:
+  schedule:
+    - cron: "17 3 * * *" # daily, 08:47 IST
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    # On deployment events, only run for successful production deploys.
+    if: >-
+      github.event_name != 'deployment_status' ||
+      (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wait for the CDN to settle
+        if: github.event_name == 'deployment_status'
+        run: sleep 30
+      - run: bash scripts/smoke.sh https://jayantgoswami.com
