@@ -69,6 +69,7 @@ function normalise(payload) {
         source: urlWithoutQuery(r["source-file"]),
         line: Number.isInteger(r["line-number"]) ? r["line-number"] : null,
         disposition: clean(r.disposition, 20),
+        sample: clean(r["script-sample"], 60),
       });
     } else if (item.type === "csp-violation" && item.body && typeof item.body === "object") {
       const b = item.body;
@@ -80,10 +81,23 @@ function normalise(payload) {
         source: urlWithoutQuery(b.sourceFile),
         line: Number.isInteger(b.lineNumber) ? b.lineNumber : null,
         disposition: clean(b.disposition, 20),
+        sample: clean(b.sample, 60),
       });
     }
   }
   return out;
+}
+
+// Where a violation most likely came from. Only "unknown" is worth investigating; the rest are
+// expected (see docs/OBSERVABILITY.md) and logged at info so real problems stand out.
+const EXTENSION = /^(chrome|moz|safari-web|ms-browser)-extension:/;
+export function classify(r) {
+  if (EXTENSION.test(r.source || "") || EXTENSION.test(r.blocked || "")) return "browser-extension";
+  const sample = r.sample || "";
+  if (sample.includes("__CF$cv$params") || sample.startsWith("(function(){function c(){var b=a.contentD")) {
+    return "cloudflare-bot-detection";
+  }
+  return "unknown";
 }
 
 export async function onRequestPost({ request }) {
@@ -107,7 +121,10 @@ export async function onRequestPost({ request }) {
   try { payload = JSON.parse(text); } catch { return reject(400); }
 
   const reports = normalise(payload);
-  for (const r of reports) log("warn", "csp.violation", { page_trace_id: pageTrace, ...r });
+  for (const r of reports) {
+    const origin = classify(r);
+    log(origin === "unknown" ? "warn" : "info", "csp.violation", { page_trace_id: pageTrace, origin, ...r });
+  }
   if (!reports.length) log("info", "csp.report.empty", { page_trace_id: pageTrace });
   return noContent();
 }

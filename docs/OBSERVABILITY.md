@@ -46,8 +46,9 @@ One JSON object per line. Request log (`event: "request"`):
 | `timeout` | Origin exceeded 10 s; a 504 was returned | error |
 | `error` | Both origin and fallback failed; a 503 was returned | error |
 
-CSP report log (`event: "csp.violation"`): `page_trace_id`, `format` (`reporting-api` or
-`report-uri`), `document`, `directive`, `blocked`, `source`, `line`, `disposition`. Related events:
+CSP report log (`event: "csp.violation"`): `page_trace_id`, `origin` (`browser-extension`,
+`cloudflare-bot-detection` or `unknown`; only `unknown` is logged at `warn`), `format` (`reporting-api` or
+`report-uri`), `document`, `directive`, `blocked`, `source`, `line`, `disposition`, `sample` (first 60 characters of a blocked inline script). Related events:
 `csp.report.empty` and `csp.report.rate_limited`.
 
 ### Privacy by design
@@ -76,6 +77,9 @@ Useful filters with `jq`:
 
 # One request, end to end (paste the X-Request-Id from the response)
 … | jq -c 'select(.trace_id == "<id>" or .page_trace_id == "<id>")'
+
+# Real CSP problems only (expected noise filtered out)
+… | jq -c 'select(.event == "csp.violation" and .origin == "unknown")'
 
 # CSP violations grouped by directive and blocked origin
 … | jq -r 'select(.event == "csp.violation") | "\(.directive)\t\(.blocked)"' | sort | uniq -c | sort -rn

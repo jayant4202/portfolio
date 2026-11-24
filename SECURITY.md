@@ -27,7 +27,7 @@ and reputation, not data theft:
 | Visitors redirected to a malicious site | Build-time outbound-link allow-list; no meta refresh; `form-action 'none'`; `rel="noopener"` enforced |
 | Malicious downloads | Build rejects PDFs with JavaScript, launch actions, embedded files, XFA or unsafe link schemes |
 | Downgrade / MITM | HSTS (2 years, subdomains); `upgrade-insecure-requests`; Cloudflare-managed TLS |
-| Supply-chain compromise | Zero runtime or build dependencies; no third-party origins in the CSP |
+| Supply-chain compromise | Zero runtime or build dependencies; the only third-party origins allowed are Cloudflare Web Analytics (Cloudflare is already the host) |
 | Abuse of the report endpoint | POST only, content-type allow-list, 16 KB cap, 20 reports per request, rate limiting, no storage |
 | Secret leakage | No secrets exist; `.env`, key and certificate files are blocked from the output and git-ignored |
 | Bots, scrapers, AI training crawlers | Cloudflare Bot Fight Mode, AI Labyrinth, AI crawler policy, `robots.txt` opt-out |
@@ -43,7 +43,7 @@ responses, so the middleware adds any missing header. The build fails if the two
 
 | Header | Value (abridged) | Purpose |
 |---|---|---|
-| `Content-Security-Policy` | `default-src 'self'`; no inline script or style; `connect-src`, `frame-src`, `worker-src`, `object-src`, `form-action` are `'none'`; `require-trusted-types-for 'script'`; `trusted-types 'none'` | Only the site's own files can run or load; DOM XSS sinks are locked |
+| `Content-Security-Policy` | `default-src 'self'`; no inline script or style; scripts only from the site and `static.cloudflareinsights.com`; beacons only to `cloudflareinsights.com`; `frame-src`, `worker-src`, `object-src`, `form-action` are `'none'`; `require-trusted-types-for 'script'`; `trusted-types 'none'` | Only the site's own files can run or load; DOM XSS sinks are locked |
 | `Strict-Transport-Security` | `max-age=63072000; includeSubDomains` | Forces HTTPS for 2 years |
 | `Cross-Origin-Opener-Policy` / `-Embedder-Policy` / `-Resource-Policy` | `same-origin` / `require-corp` / `same-origin` | Cross-origin isolation |
 | `Permissions-Policy` | Every powerful feature disabled except fullscreen and autoplay for the site itself | Least privilege |
@@ -52,6 +52,10 @@ responses, so the middleware adds any missing header. The build fails if the two
 
 PDFs under `/assets/docs/` and the resume drop the page CSP so the browser's built-in PDF viewer
 works. The resume is served with `Content-Disposition: attachment`.
+
+**Cached assets and header changes:** Cloudflare caches assets with the headers they had when first
+cached. The build therefore includes `_headers` in every asset fingerprint, so changing a header
+changes every asset URL and no stale headers survive a deploy.
 
 HSTS `preload` is intentionally not set. Preload-list inclusion is hard to reverse and commits
 every future subdomain to HTTPS. Revisit once the domain setup is final.

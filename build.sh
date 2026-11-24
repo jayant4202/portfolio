@@ -39,19 +39,28 @@ if grep -rlI 'YOUR-DOMAIN' "$OUT"; then fail "placeholder domain still present i
 
 HTML_FILES=$(find "$OUT" -name '*.html')
 
-# 2b. Cache-busting: stamp every CSS/JS/image reference with a fingerprint of the file's contents,
-#     so after a deploy no visitor ever mixes new pages with an old cached stylesheet or script.
+# 2b. Cache-busting: stamp every asset reference (CSS, JS, images, video, PDFs) with a fingerprint.
+#     The fingerprint covers the file's contents AND public/_headers: Cloudflare's cache keeps the
+#     headers a file was first cached with, so a header change must also produce new asset URLs, or
+#     unchanged files would keep serving old security headers indefinitely.
+HEADERS_SUM=$(cksum < public/_headers | cut -d' ' -f1)
 stamp() { # stamp <asset path> <files to rewrite...>
   local asset=$1; shift
   [[ -f "$OUT$asset" ]] || return 0
-  local v; v=$(cksum < "$OUT$asset" | cut -d' ' -f1)
+  local v; v=$( { cat "$OUT$asset"; echo "$HEADERS_SUM"; } | cksum | cut -d' ' -f1)
   local f; for f in "$@"; do
     sed -i.bak -E "s#${asset//./\\.}([\" )])#${asset}?v=${v}\1#g" "$f" && rm -f "$f.bak"
   done
 }
 CSS_FILES=$(find "$OUT/assets/css" -name '*.css' 2>/dev/null || true)
 for img in $(cd "$OUT" && find assets/img -type f | sed 's#^#/#'); do stamp "$img" $HTML_FILES $CSS_FILES; done
+for media in $(cd "$OUT" && find assets -type f \( -name '*.mp4' -o -name '*.webm' -o -name '*.pdf' \) | sed 's#^#/#'); do
+  stamp "$media" $HTML_FILES
+done
 for asset in $(cd "$OUT" && find assets/css assets/js -type f | sed 's#^#/#'); do stamp "$asset" $HTML_FILES; done
+unstamped=$(grep -hoE '(href|src)="/assets/[^"]+"' $HTML_FILES | grep -v '?v=' | sort -u || true)
+[[ -z "$unstamped" ]] || fail "asset links without a cache fingerprint (file names with spaces or special characters?):
+$unstamped"
 
 # 2c. Subresource Integrity: browsers refuse a stylesheet or script whose bytes don't match the hash
 #     baked into the page, so a tampered or corrupted file can never run.

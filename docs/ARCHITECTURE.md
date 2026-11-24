@@ -4,7 +4,8 @@
 
 1. **Fast and always available.** Pages are static files on a global CDN, with no origin server to
    fail.
-2. **Minimal attack surface.** No dependencies, no third-party code, no state, no secrets.
+2. **Minimal attack surface.** No dependencies, no state, no secrets; the only third-party code is
+   Cloudflare Web Analytics, from the same provider that already hosts the site.
 3. **Robust by default.** Every enhancement degrades gracefully: no JavaScript, no CSS, a missing
    image or a failed video still leaves a usable page.
 4. **Unsafe changes can't ship.** Correctness and security rules are enforced by the build, not by
@@ -99,8 +100,9 @@ best-effort, the page is not. The security headers are still applied on the fall
 holds even with JavaScript disabled. `theme.js` is render-blocking on purpose: it's tiny and it
 avoids a flash of the wrong theme. "System" defers to `prefers-color-scheme`.
 
-**Content-addressed asset URLs plus SRI.** `?v=<checksum>` makes every deploy cache-coherent
-despite a 24 h asset cache. SRI makes any byte-level tampering fatal for that asset rather than
+**Content-addressed asset URLs plus SRI.** `?v=<checksum of file + _headers>` makes every deploy
+cache-coherent despite a 24 h asset cache, for both content and headers. Cloudflare revalidates
+unchanged files by ETag and keeps their original headers, so the headers must be part of the key. SRI makes any byte-level tampering fatal for that asset rather than
 exploitable.
 
 ## Extending

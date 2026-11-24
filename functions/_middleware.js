@@ -15,6 +15,8 @@ import { startTrace, requestFields, log, clean } from "../lib/edge/trace.js";
 
 const ORIGIN_TIMEOUT_MS = 10_000;
 const READ_METHODS = new Set(["GET", "HEAD"]);
+// Fixed same-site path redirects. Targets are relative paths only, so they can never point off-site.
+const PATH_ALIASES = { "/security.txt": "/.well-known/security.txt" };
 
 class TimeoutError extends Error {
   constructor(ms) { super(`origin did not respond within ${ms} ms`); this.name = "TimeoutError"; }
@@ -46,6 +48,7 @@ function hostPolicy(url, siteUrl) {
   if (canon && host !== canon && (host === `www.${canon}` || (isPagesDev && !isPreview))) {
     return { redirect: `https://${canon}${url.pathname}${url.search}` };
   }
+  if (Object.prototype.hasOwnProperty.call(PATH_ALIASES, url.pathname)) return { redirect: PATH_ALIASES[url.pathname] };
   return { noindex: isPreview };
 }
 

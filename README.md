@@ -4,7 +4,7 @@ Source for [jayantgoswami.com](https://jayantgoswami.com), the portfolio of Jaya
 
 The site is static HTML, CSS and vanilla JavaScript, served from Cloudflare Pages. A thin edge
 middleware adds request tracing and keeps security headers in place. It has no framework, no npm
-dependencies, no third-party scripts, no cookies and no secrets. Every design choice favours a small
+dependencies, no cookies and no secrets; the only third-party script is Cloudflare's cookieless Web Analytics. Every design choice favours a small
 attack surface and a build that fails before anything unsafe can ship.
 
 | | |
@@ -23,6 +23,8 @@ attack surface and a build that fails before anything unsafe can ship.
 | [SECURITY.md](SECURITY.md) | Reporting a vulnerability, threat model, every control and why it exists |
 | [docs/OBSERVABILITY.md](docs/OBSERVABILITY.md) | Trace model, log schema, how to read logs, correlating browser reports |
 | [docs/OPERATIONS.md](docs/OPERATIONS.md) | Deploy, rollback, Cloudflare configuration, recurring tasks, incident runbooks |
+| [docs/ROADMAP.md](docs/ROADMAP.md) | Feature register, content inventory, roadmap (testing automation, hosted prototypes with trials), decision log |
+| [CHANGELOG.md](CHANGELOG.md) | Versioned release history; every deploy is tagged `vX.Y.Z` |
 
 ## Repository layout
 
@@ -62,8 +64,9 @@ under the production CSP, see "Testing" in [docs/OPERATIONS.md](docs/OPERATIONS.
 
 ## The build is the release gate
 
-`build.sh` copies `public/` to `dist/`, injects the real domain, and fingerprints every CSS, JS and
-image reference with a content hash. It adds Subresource Integrity hashes to every stylesheet and
+`build.sh` copies `public/` to `dist/`, injects the real domain, and fingerprints every asset reference
+(CSS, JS, images, video, PDFs) with a hash of the file *and* of `_headers`, so header changes reach
+Cloudflare-cached files too. It adds Subresource Integrity hashes to every stylesheet and
 script. It then **refuses to produce output** if any of these checks fail:
 
 | Check | Prevents |
@@ -102,6 +105,9 @@ A failed build deploys nothing, so the last good version stays live.
   fails if they differ.
 - **New outbound link:** add it to `ALLOWED_EXTERNAL` in `build.sh` deliberately; the build rejects
   anything else.
+
+Record every change under **Unreleased** in [CHANGELOG.md](CHANGELOG.md) and keep
+[docs/ROADMAP.md](docs/ROADMAP.md) in step.
 
 Deploys: push to `main`, and Cloudflare Pages builds and publishes in about a minute. See
 [docs/OPERATIONS.md](docs/OPERATIONS.md) for settings, rollback and recurring maintenance.
