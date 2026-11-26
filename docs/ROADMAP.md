@@ -29,6 +29,8 @@ Status: ✅ live · 🧪 in progress · 💤 parked · ❌ removed
 | Quality | Cross-browser end-to-end, accessibility and server-security tests (Playwright + axe) | ✅ | 1.3.0 | `tests/e2e/` |
 | Quality | HTML validation, ShellCheck, Lighthouse budgets | ✅ | 1.3.0 | `package.json` scripts |
 | Quality | CI on every push; post-deploy and daily smoke tests; Dependabot | ✅ | 1.3.0 | `.github/` |
+| Quality | Pre-commit hook: secret scan + release gate | ✅ | Unreleased | `.githooks/pre-commit` |
+| Docs | Mac setup guide | ✅ | Unreleased | `docs/SETUP.md` |
 | Demo | Live AI spend categoriser | ❌ | 1.0.0–1.1.0 | removed |
 
 ### Content inventory

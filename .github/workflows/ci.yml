@@ -27,7 +27,7 @@ jobs:
       - name: Build (release gate)
         run: SITE_URL=https://jayantgoswami.com bash build.sh
       - name: ShellCheck
-        run: shellcheck build.sh scripts/*.sh
+        run: shellcheck build.sh scripts/*.sh .githooks/pre-commit
       - name: Secret scan (gitleaks)
         run: |
           curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.24.0/gitleaks_8.24.0_linux_x64.tar.gz \

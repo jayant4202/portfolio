@@ -16,6 +16,12 @@ deploy.
 
 ## [Unreleased]
 
+### Added
+- `docs/SETUP.md`: step-by-step Mac setup guide (with links) for development, testing, automation and
+  maintenance, covering account security, update cadence and troubleshooting.
+- `.githooks/pre-commit`: blocks commits that contain secrets (gitleaks) or fail the release gate.
+  Works from GitHub Desktop. Enable with `git config core.hooksPath .githooks`.
+
 ## [1.3.0] - 2026-11-24
 
 Testing and automation foundation (roadmap v1.3).

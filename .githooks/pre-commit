@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Pre-commit safety hook. Enable once per clone:  git config core.hooksPath .githooks
+#
+# Blocks a commit if (1) it contains a secret, or (2) the site would fail its release gate.
+# Runs from GitHub Desktop too. Emergency bypass (Terminal only): git commit --no-verify
+set -uo pipefail
+
+# GitHub Desktop runs hooks with a minimal PATH; make Homebrew tools visible.
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+cd "$(git rev-parse --show-toplevel)" || exit 1
+
+if command -v gitleaks >/dev/null 2>&1; then
+  if ! gitleaks git --pre-commit --staged --redact --no-banner --exit-code 1 .; then
+    echo "✗ Commit blocked: a possible secret is staged (see above). Remove it, and rotate it if it was ever real." >&2
+    exit 1
+  fi
+else
+  echo "! gitleaks not installed, so the secret scan was skipped (brew install gitleaks)" >&2
+fi
+
+out_dir=$(mktemp -d)
+if ! log=$(SITE_URL=https://jayantgoswami.com OUT="$out_dir/dist" bash build.sh 2>&1); then
+  echo "$log" | grep -E "BUILD FAILED|^[^ ]" | tail -15 >&2
+  echo "✗ Commit blocked: the site fails its release gate (details above). Run 'npm run build' to reproduce." >&2
+  rm -rf "$out_dir"
+  exit 1
+fi
+rm -rf "$out_dir"
+echo "✓ pre-commit: no secrets, release gate passed"

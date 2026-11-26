@@ -17,7 +17,7 @@
     "test:e2e:ui": "npm run build:local && playwright test --ui",
     "lint": "npm run lint:html && npm run lint:sh",
     "lint:html": "npm run build:local && html-validate \"dist/**/*.html\"",
-    "lint:sh": "shellcheck build.sh scripts/*.sh",
+    "lint:sh": "shellcheck build.sh scripts/*.sh .githooks/pre-commit",
     "lighthouse": "npm run build:local && lhci autorun",
     "smoke": "bash scripts/smoke.sh https://jayantgoswami.com",
     "check": "npm run lint && npm run test"

@@ -23,6 +23,7 @@ attack surface and a build that fails before anything unsafe can ship.
 | [SECURITY.md](SECURITY.md) | Reporting a vulnerability, threat model, every control and why it exists |
 | [docs/OBSERVABILITY.md](docs/OBSERVABILITY.md) | Trace model, log schema, how to read logs, correlating browser reports |
 | [docs/OPERATIONS.md](docs/OPERATIONS.md) | Deploy, rollback, Cloudflare configuration, recurring tasks, incident runbooks |
+| [docs/SETUP.md](docs/SETUP.md) | **Start here:** step-by-step Mac setup for development, testing, automation and maintenance, with links |
 | [docs/TESTING.md](docs/TESTING.md) | Test layers, Mac setup, everyday commands, CI pipelines, adding tests |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Feature register, content inventory, roadmap (testing automation, hosted prototypes with trials), decision log |
 | [CHANGELOG.md](CHANGELOG.md) | Versioned release history; every deploy is tagged `vX.Y.Z` |
@@ -49,6 +50,7 @@ lib/edge/                   Shared edge modules (kept outside functions/ so they
   security-headers.js       Header baseline, which must match public/_headers (build-enforced)
   trace.js                  Trace context, sanitisation helpers, structured logger
 build.sh                    Build + release gate (see below)
+.githooks/pre-commit        Blocks commits containing secrets or failing the release gate
 scripts/smoke.sh            Live-site smoke test (run after every deploy and daily by CI)
 tests/unit/                 Vitest unit tests for the edge code
 tests/e2e/                  Playwright end-to-end, accessibility and server-security tests
@@ -59,7 +61,7 @@ docs/                       Engineering documentation
 
 ## Local development
 
-Requirements: Node.js 22 (`.nvmrc`), plus bash and openssl. Full setup is in [docs/TESTING.md](docs/TESTING.md).
+Requirements: Node.js 22 (`.nvmrc`), plus bash and openssl. Step-by-step setup: [docs/SETUP.md](docs/SETUP.md).
 
 ```bash
 npm ci && npx playwright install   # once

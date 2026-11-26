@@ -22,6 +22,8 @@ duplicates), HTML valid, Lighthouse 100/100/100/100, smoke 44/44, `npm audit` 0 
 
 ## Setup on a Mac
 
+The full step-by-step guide, with links, is [SETUP.md](SETUP.md). The short version:
+
 ```bash
 xcode-select --install          # git and compilers
 # Install Homebrew from https://brew.sh, then:
