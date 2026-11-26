@@ -15,13 +15,29 @@ failed=0
 
 ok()   { echo "  ✓ $1"; pass=$((pass + 1)); }
 okif() { if [[ "$1" == "0" ]]; then ok "$2"; else bad "$3"; fi; }  # okif <exit status> <pass msg> <fail msg>
-bad()  { echo "  ✗ $1"; failed=$((failed + 1)); }
+bad()  {
+  echo "  ✗ $1"; failed=$((failed + 1))
+  # On GitHub Actions, also emit an annotation: visible on the run page and via the public API.
+  [[ "${GITHUB_ACTIONS:-}" == "true" ]] && echo "::error title=Smoke test::$1"
+  return 0
+}
 check() { if eval "$2" >/dev/null 2>&1; then ok "$1"; else bad "$1"; fi; }
 
 headers() { curl -sS -I --max-time 15 "$1" | tr -d '\r'; }
 status()  { curl -sS -o /dev/null --max-time 15 -w '%{http_code}' "$@"; }
 
 echo "Smoke test: $BASE"
+live=$(curl -sS --max-time 15 "$BASE/version.json" 2>/dev/null | grep -oE '"commit":"[^"]+"' | cut -d'"' -f4)
+echo "Live build: ${live:-unknown}"
+
+# Cloudflare bot protection (Bot Fight Mode) challenges many cloud/data-centre IPs, including
+# GitHub's runners. Detect that up front so the failure explains itself instead of failing 40 checks.
+probe=$(headers "$BASE/")
+if echo "$probe" | grep -qi '^cf-mitigated: challenge'; then
+  bad "Cloudflare is challenging this machine as a bot (cf-mitigated: challenge), so the live checks can't run from here. See docs/OPERATIONS.md → Smoke test and bot protection."
+  echo; echo "$pass passed, $failed failed"
+  exit 1
+fi
 
 echo "Pages and security headers"
 required=(strict-transport-security content-security-policy reporting-endpoints x-content-type-options

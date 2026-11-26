@@ -16,7 +16,35 @@ deploy.
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-11-26
+
+Profile icons, PII protection, speed and image loading, and bug fixes.
+
 ### Added
+- **GitHub and LinkedIn icons in the top-right corner of every page.** They open the profiles in a
+  new tab (`rel="me noopener noreferrer"`) and replace only the header's "LinkedIn ↗" button. Every
+  other LinkedIn button and link (home CTA, About, footer, mobile menu) is unchanged. They are
+  visible at every width down to 320 px: on very narrow phones the name text hides and the photo stays.
+  GitHub was also added to the build's outbound-link allow-list and to the structured data (`sameAs`).
+- **PII protection layer (`lib/edge/pii.js`):**
+  - Redaction of emails, phone numbers and IPs, applied to every log line.
+  - HMAC pseudonymisation; the report endpoint's rate limiter no longer holds raw IPs, even in memory.
+  - AES-256-GCM encryption with purpose binding and key rotation, ready for any stored PII (roadmap
+    v2.0). It is configured through a Cloudflare secret, never the repo, and fails closed.
+  - 40 new unit tests.
+- PII inventory and key-management runbook in SECURITY.md.
+- `/version.json` (the deployed commit). The post-deploy smoke test now waits for the pushed commit to
+  be live before testing.
+- `npm run images` (`scripts/optimize-images.mjs`, sharp): generates every photo size and format from
+  one master.
+- New tests:
+  - header icons on every page and at every width
+  - other LinkedIn links untouched
+  - modern image formats served, hidden photos not downloaded
+  - video not downloaded until played
+  - cache headers
+  - `version.json`
+- Build gate: every `srcset` image and video `poster` must exist and be fingerprinted.
 - `docs/SETUP.md`: step-by-step Mac setup guide (with links) for development, testing, automation and
   maintenance, covering account security, update cadence and troubleshooting.
 - `.githooks/pre-commit`: blocks commits that contain secrets (gitleaks) or fail the release gate.
@@ -24,6 +52,33 @@ deploy.
 - Google Search Console ownership file `/google8b0f2db1d47e57ef.html`. The middleware serves Google
   verification files directly with a 200, bypassing Pages' `.html` → extensionless 308 redirect, which
   verifiers can reject. Covered by unit and end-to-end tests; excluded from page tests and HTML lint.
+
+### Changed (speed and image loading)
+- **Photos are served as AVIF and WebP with JPEG fallback,** via `<picture>`. The About photo drops
+  from 91 KB to 19 KB, and the header avatar from 6.7 KB to 2.5 KB.
+- **The About page no longer downloads images it hides:**
+  - Phones get a 1-pixel placeholder instead of the large photo.
+  - The small mobile avatar is lazy-loaded at 160 px instead of a 360 px photo.
+- **Link-preview image: 667 KB PNG → 30 KB JPEG,** with `og:image` width, height and alt text.
+- **Demo video:**
+  - It now downloads only when played (`preload="none"`), with an 11 KB poster frame.
+  - Fixed width, height and aspect ratio prevent layout shift.
+- **Fingerprinted CSS, JS and images are cached for a year** (`immutable`). Video and PDFs stay at
+  one day.
+- Result: every page weighs 21–32 KB on first load, and Lighthouse is 100/100/100/100 on all
+  tested pages (Demos performance 99 → 100).
+
+### Fixed
+- **Cloudflare Web Analytics still recorded nothing.** The beacon loaded but posts to `/cdn-cgi/rum`
+  on the site itself, which `connect-src` blocked. Added `'self'` to `connect-src`.
+- **The post-deploy smoke test never ran:** Cloudflare Pages doesn't emit GitHub `deployment_status`
+  events. It now triggers on push and waits for the commit to go live.
+- **Smoke-test failures on GitHub were unreadable without signing in.** Each failed check is now a
+  public annotation, and a Cloudflare bot challenge is detected and explained in one message.
+- GitHub Actions updated to v7 (checkout, setup-node, upload-artifact). This removes the Node 20
+  deprecation warnings and supersedes Dependabot PRs #1–#3.
+- PII redaction patterns: phone numbers ending a sentence and `::`-compressed IPv6 addresses are now
+  caught, and clock times are no longer mistaken for IPv6 (found by the new tests).
 
 ## [1.3.0] - 2026-11-24
 
@@ -146,7 +201,8 @@ Security sanity pass on the live site.
 - Strict CSP and security headers, plus a build-time gate covering link allow-list, PDF safety,
   internal links, inline code and file-size limits.
 
-[Unreleased]: https://github.com/jayant4202/portfolio/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/jayant4202/portfolio/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/jayant4202/portfolio/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/jayant4202/portfolio/compare/v1.2.1...v1.3.0
 [1.2.1]: https://github.com/jayant4202/portfolio/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/jayant4202/portfolio/compare/v1.1.0...v1.2.0

@@ -55,7 +55,9 @@ CSP report log (`event: "csp.violation"`): `page_trace_id`, `origin` (`browser-e
 
 Never logged: IP addresses, cookies, request bodies, query strings, or full referrer URLs (only
 the origin). User agents are truncated to 160 characters. All strings are stripped of control
-characters and length-capped, so log injection is not possible. The [privacy page](../public/privacy.html)
+characters and length-capped, so log injection is not possible. As a final safeguard, `log()`
+runs every field through `redactDeep()` (lib/edge/pii.js), which replaces any email, phone number or
+IP address with `[email]`, `[phone]` or `[ip]`, for example an email someone types into a URL path. The [privacy page](../public/privacy.html)
 describes this to visitors.
 
 ## Reading logs

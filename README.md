@@ -49,7 +49,10 @@ functions/
 lib/edge/                   Shared edge modules (kept outside functions/ so they never become routes)
   security-headers.js       Header baseline, which must match public/_headers (build-enforced)
   trace.js                  Trace context, sanitisation helpers, structured logger
+  pii.js                    PII redaction, pseudonymisation and AES-256-GCM encryption layer
 build.sh                    Build + release gate (see below)
+scripts/optimize-images.mjs Regenerates all photo sizes/formats (`npm run images`)
+assets-src/                 Image sources that are not published (social preview, video poster)
 .githooks/pre-commit        Blocks commits containing secrets or failing the release gate
 scripts/smoke.sh            Live-site smoke test (run after every deploy and daily by CI)
 tests/unit/                 Vitest unit tests for the edge code
@@ -101,8 +104,13 @@ A failed build deploys nothing, so the last good version stays live.
 - **Content:** edit the HTML in `public/`. To add a case study, copy `case-studies/_template.html`,
   add a card to `work.html` (and update the filter counts), and add the URL to `sitemap.xml`.
   `<!-- ADD: ... -->` comments mark details still to be filled in.
-- **Resume / photo:** replace the file under `public/assets/` and keep the same name; cache
-  fingerprints update automatically.
+- **Resume:** replace `public/assets/Jayant-Goswami-Resume.pdf` and keep the name.
+- **Photo:** replace `public/assets/img/jayant-goswami.jpg` (720×720 master), then run `npm run images`.
+  It regenerates every size and format (AVIF, WebP, JPEG, avatar). Commit the outputs.
+  The social preview image and video poster sources live in `assets-src/`.
+- **Profile icons (top right):** each is one `<a class="icon-btn social-link">` inside
+  `.social-links` in the page header. To add a profile (for example X or Medium), copy one, change the
+  `href`, `aria-label` and SVG icon on every page, and add the URL to `ALLOWED_EXTERNAL` in `build.sh`.
 - **Result chips:** the class sets the meaning, not the arrow. Green means good, red means bad:
   `kpi good up`, `kpi good down` (a reduction that's good, such as time saved), `kpi bad up|down`,
   `kpi neutral`. Always include the visually hidden text for screen readers:

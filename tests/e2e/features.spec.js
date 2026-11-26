@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { allPages } from "./helpers.js";
 
 test.describe("theme picker", () => {
   test("defaults to dark even when the device prefers light", async ({ page }) => {
@@ -86,13 +87,38 @@ test.describe("media and downloads", () => {
   test("demo video loads", async ({ page, browserName }) => {
     test.skip(browserName === "webkit", "Playwright WebKit ships without H.264; real Safari plays MP4");
     await page.goto("/demos.html");
+    // The video uses preload="none" (it downloads only when played); load() is what play() triggers.
     const ready = await page.locator("video").evaluate((v) => new Promise((resolve) => {
-      if (v.readyState >= 1) return resolve(true);
       v.addEventListener("loadedmetadata", () => resolve(true));
       v.addEventListener("error", () => resolve(false));
       setTimeout(() => resolve(v.readyState >= 1), 10_000);
+      v.load();
     }));
     expect(ready).toBe(true);
+  });
+
+  test("demo video downloads nothing until played, and shows a poster", async ({ page }) => {
+    const mp4 = [];
+    page.on("request", (r) => { if (r.url().includes(".mp4")) mp4.push(r.url()); });
+    await page.goto("/demos.html", { waitUntil: "load" });
+    await page.waitForTimeout(500);
+    expect(mp4).toEqual([]);
+    const poster = await page.locator("video").getAttribute("poster");
+    expect((await page.request.get(poster)).ok()).toBe(true);
+  });
+
+  test("images use modern formats and hidden photos are not downloaded", async ({ page, browserName }, testInfo) => {
+    test.skip(browserName !== "chromium", "format negotiation checked once, in Chromium");
+    const images = [];
+    page.on("response", (r) => { if (r.request().resourceType() === "image") images.push(r.url()); });
+    await page.goto("/about.html", { waitUntil: "load" });
+    await page.waitForTimeout(300);
+    const photos = images.filter((u) => u.includes("jayant-goswami"));
+    expect(photos.length).toBeGreaterThan(0);
+    expect(photos.every((u) => /\.avif\?v=/.test(u)), photos.join("\n")).toBe(true);
+    const mobile = testInfo.project.name.startsWith("mobile");
+    // Phones show the small avatar; desktop shows the large photo. Never both.
+    expect(photos.some((u) => u.includes("-720.avif") || u.includes("-360.avif"))).toBe(!mobile);
   });
 
   test("resume downloads as a real PDF attachment", async ({ page, request }) => {
@@ -106,7 +132,8 @@ test.describe("media and downloads", () => {
   });
 
   test("a broken profile photo falls back to initials", async ({ page }) => {
-    await page.route("**/jayant-goswami-avatar.jpg*", (r) => r.abort());
+    // Block every format (AVIF, WebP, JPEG): the browser uses whichever <picture> picks.
+    await page.route(/jayant-goswami-avatar\.(avif|webp|jpg)/, (r) => r.abort());
     await page.goto("/");
     await expect(page.locator(".brand-mark img")).toBeHidden();
     await expect(page.locator(".brand-mark")).toBeVisible();
@@ -130,5 +157,51 @@ test.describe("without JavaScript", () => {
     await expect(page.locator('[data-kind="assignment"]').first()).toBeVisible();
     await expect(page.locator('[data-kind="case-study"]').first()).toBeVisible();
     await expect(page.locator("[data-theme-picker]")).toBeHidden();
+  });
+});
+
+test.describe("profile icons in the header", () => {
+  test("every page has GitHub and LinkedIn icons at the top right that open the profiles safely", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "chromium", "markup check runs once");
+    for (const path of allPages()) {
+      await page.goto(path);
+      const links = page.locator(".site-header .social-links a");
+      await expect(links, path).toHaveCount(2);
+      const hrefs = await links.evaluateAll((as) => as.map((a) => [a.href, a.target, a.rel, a.getAttribute("aria-label")]));
+      expect(hrefs, path).toEqual([
+        ["https://github.com/jayant4202", "_blank", "me noopener noreferrer", "GitHub profile (opens in a new tab)"],
+        ["https://www.linkedin.com/in/jayant-goswami/", "_blank", "me noopener noreferrer", "LinkedIn profile (opens in a new tab)"],
+      ]);
+      // The old text button is gone from the header only.
+      await expect(page.locator(".site-header .btn", { hasText: "LinkedIn" })).toHaveCount(0);
+    }
+  });
+
+  test("icons sit in the top-right corner, visible and clickable at every width", async ({ page }) => {
+    for (const width of [320, 375, 412, 768, 1024, 1440]) {
+      await page.setViewportSize({ width, height: 800 });
+      await page.goto("/");
+      for (const name of ["GitHub profile", "LinkedIn profile"]) {
+        const icon = page.getByRole("link", { name: new RegExp(name) });
+        await expect(icon, `${name} @${width}`).toBeVisible();
+        const box = await icon.boundingBox();
+        const brand = await page.locator(".brand").boundingBox();
+        expect(box.x, `${name} @${width} is right of the logo`).toBeGreaterThan(brand.x + brand.width);
+        expect(box.x + box.width, `${name} @${width} is inside the screen`).toBeLessThanOrEqual(width);
+        // Right-aligned group: the icon sits in the right 55% of the header at every width.
+        expect(box.x, `${name} @${width} is toward the right`).toBeGreaterThan(width * 0.45);
+        expect(box.y, `${name} @${width} is in the header`).toBeLessThan(64);
+        expect(box.width, `${name} @${width} tap target`).toBeGreaterThanOrEqual(34);
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), `overflow @${width}`).toBeLessThanOrEqual(1);
+    }
+  });
+
+  test("other LinkedIn buttons and links on the pages are unchanged", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "chromium", "markup check runs once");
+    await page.goto("/");
+    await expect(page.locator('main a[href="https://www.linkedin.com/in/jayant-goswami/"]').first()).toBeVisible();
+    await expect(page.locator('footer a[href="https://www.linkedin.com/in/jayant-goswami/"]')).toHaveCount(1);
+    await expect(page.locator('.nav-links .nav-mobile-only a[href="https://www.linkedin.com/in/jayant-goswami/"]')).toHaveCount(1);
   });
 });

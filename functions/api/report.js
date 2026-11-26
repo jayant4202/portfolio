@@ -8,6 +8,7 @@
 // per-isolate rate limiting, every field sanitised, nothing echoed back, no storage, always 204.
 
 import { log, clean, urlWithoutQuery, TRACE_ID } from "../../lib/edge/trace.js";
+import { pseudonymize } from "../../lib/edge/pii.js";
 
 const MAX_BYTES = 16 * 1024;
 const MAX_REPORTS = 20;
@@ -15,7 +16,9 @@ const TYPES = ["application/reports+json", "application/csp-report", "applicatio
 const RATE = { windowMs: 60_000, perClient: 30, global: 1_000 };
 
 // In-memory, per-isolate limiter. It resets when the isolate recycles: it blunts floods, and
-// Cloudflare's own DDoS and bot protection sit in front of it. Client keys are never logged.
+// Cloudflare's own DDoS and bot protection sit in front of it. Clients are keyed by an HMAC pseudonym
+// of their IP (random per-isolate key), so raw IP addresses are never held, even in memory, and
+// never logged.
 const buckets = new Map();
 let globalWindow = { start: 0, count: 0 };
 
@@ -107,7 +110,7 @@ export async function onRequestPost({ request }) {
   const ctype = (request.headers.get("content-type") || "").split(";")[0].trim().toLowerCase();
 
   if (!TYPES.includes(ctype)) return reject(415);
-  const key = request.headers.get("cf-connecting-ip") || "unknown";
+  const key = await pseudonymize(request.headers.get("cf-connecting-ip") || "unknown");
   if (rateLimited(key, Date.now())) {
     log("warn", "csp.report.rate_limited", { page_trace_id: pageTrace });
     return reject(429, { "Retry-After": "60" });

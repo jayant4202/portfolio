@@ -6,7 +6,7 @@ on GitHub for every push and pull request.
 | Layer | Tool | What it proves | Command |
 |---|---|---|---|
 | Release gate | `build.sh` | Links, SRI, PDF safety, header parity, no secrets or inline code (see README) | `npm run build` |
-| Unit | Vitest | Edge middleware and report endpoint: tracing, redirects, 405s, fallbacks, timeouts, sanitisation, rate limits (70 tests) | `npm run test:unit` |
+| Unit | Vitest | Edge middleware and report endpoint: tracing, redirects, 405s, fallbacks, timeouts, sanitisation, rate limits (114 tests, including the PII encryption and redaction layer) | `npm run test:unit` |
 | End-to-end | Playwright on `wrangler pages dev` | Every page in Chromium, Firefox, WebKit, Android and iPhone sizes: no CSP violations or console errors, no overflow, images load, theme, filters, menu, media fallbacks, no-JS mode | `npm run test:e2e` |
 | Accessibility | axe-core (in Playwright) | No serious or critical WCAG 2.1 AA violations on any page | part of `test:e2e` |
 | Server security | Playwright request API | All security headers, trace IDs, 405s, `/security.txt` redirect, report-endpoint abuse handling, private files not served, robots policy | part of `test:e2e` |
@@ -17,8 +17,9 @@ on GitHub for every push and pull request.
 | Code security | Semgrep (CI) | No high-severity patterns in edge or browser JS | CI only |
 | Production | `scripts/smoke.sh` | 44 live checks: headers, TLS, redirects, private files, certificate and security.txt expiry | `npm run smoke` |
 
-Current baseline (2026-11-24): 70/70 unit, 143/143 end-to-end (107 intentionally skipped
-duplicates), HTML valid, Lighthouse 100/100/100/100, smoke 44/44, `npm audit` 0 vulnerabilities.
+Current baseline (2026-11-26, v1.4.0): 114/114 unit, 160/160 end-to-end (intentional
+single-browser checks skipped elsewhere), HTML valid, Lighthouse 100/100/100/100 on every page
+(21–32 KB per page), smoke 44/44, `npm audit` 0 vulnerabilities.
 
 ## Setup on a Mac
 

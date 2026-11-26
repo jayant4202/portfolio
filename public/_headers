@@ -4,7 +4,7 @@
 # To embed a hosted prototype later, change frame-src 'none' to that host in BOTH files.
 /*
   Strict-Transport-Security: max-age=63072000; includeSubDomains
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://static.cloudflareinsights.com 'report-sample'; style-src 'self'; img-src 'self' data:; font-src 'self'; media-src 'self'; connect-src https://cloudflareinsights.com; frame-src 'none'; worker-src 'none'; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'none'; object-src 'none'; require-trusted-types-for 'script'; trusted-types 'none'; upgrade-insecure-requests; report-uri /api/report; report-to csp
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://static.cloudflareinsights.com 'report-sample'; style-src 'self'; img-src 'self' data:; font-src 'self'; media-src 'self'; connect-src 'self' https://cloudflareinsights.com; frame-src 'none'; worker-src 'none'; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'none'; object-src 'none'; require-trusted-types-for 'script'; trusted-types 'none'; upgrade-insecure-requests; report-uri /api/report; report-to csp
   Reporting-Endpoints: csp="/api/report"
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
@@ -16,13 +16,27 @@
   X-Permitted-Cross-Domain-Policies: none
   Origin-Agent-Cluster: ?1
 
-/assets/*
+# Caching. CSS, JS and images are always linked with a content fingerprint (?v=…, added by build.sh),
+# so a changed file always has a new URL: browsers may keep them for a year without re-checking.
+# Video and PDFs keep a 1-day cache because people link to them directly, without a fingerprint.
+/assets/css/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/js/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/img/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/video/*
   Cache-Control: public, max-age=86400
 
 # PDFs open in the browser's built-in viewer; the page CSP isn't needed there and can break the viewer.
 /assets/docs/*
+  Cache-Control: public, max-age=86400
   ! Content-Security-Policy
 
 /assets/Jayant-Goswami-Resume.pdf
+  Cache-Control: public, max-age=86400
   ! Content-Security-Policy
   Content-Disposition: attachment; filename="Jayant-Goswami-Resume.pdf"

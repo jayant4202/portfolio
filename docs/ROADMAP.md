@@ -3,7 +3,7 @@
 The living reference for **what the site does today** and **where it's going**. Update it in the
 same commit as any change it describes. Version history lives in [CHANGELOG.md](../CHANGELOG.md).
 
-_Last reviewed: 2026-11-24 · Current version: 1.3.0_
+_Last reviewed: 2026-11-26 · Current version: 1.4.0_
 
 ## 1. Feature register (what's live)
 
@@ -29,9 +29,13 @@ Status: ✅ live · 🧪 in progress · 💤 parked · ❌ removed
 | Quality | Cross-browser end-to-end, accessibility and server-security tests (Playwright + axe) | ✅ | 1.3.0 | `tests/e2e/` |
 | Quality | HTML validation, ShellCheck, Lighthouse budgets | ✅ | 1.3.0 | `package.json` scripts |
 | Quality | CI on every push; post-deploy and daily smoke tests; Dependabot | ✅ | 1.3.0 | `.github/` |
-| Quality | Pre-commit hook: secret scan + release gate | ✅ | Unreleased | `.githooks/pre-commit` |
-| Docs | Mac setup guide | ✅ | Unreleased | `docs/SETUP.md` |
-| SEO | Google Search Console verification | ✅ | Unreleased | `public/google8b0f2db1d47e57ef.html` |
+| Quality | Pre-commit hook: secret scan + release gate | ✅ | 1.4.0 | `.githooks/pre-commit` |
+| Docs | Mac setup guide | ✅ | 1.4.0 | `docs/SETUP.md` |
+| SEO | Google Search Console verification | ✅ | 1.4.0 | `public/google8b0f2db1d47e57ef.html` |
+| UX | GitHub + LinkedIn profile icons, top right | ✅ | 1.4.0 | page headers, `style.css` (`.social-links`) |
+| Security | PII layer: log redaction, pseudonymisation, AES-256-GCM encryption | ✅ | 1.4.0 | `lib/edge/pii.js` |
+| Performance | AVIF/WebP photos, no hidden-image downloads, lazy video with poster, 1-year asset cache | ✅ | 1.4.0 | `scripts/optimize-images.mjs`, `_headers` |
+| Ops | `/version.json` + push-triggered smoke test that waits for the deploy | ✅ | 1.4.0 | `build.sh`, `.github/workflows/smoke.yml` |
 | Demo | Live AI spend categoriser | ❌ | 1.0.0–1.1.0 | removed |
 
 ### Content inventory
@@ -68,8 +72,8 @@ All of the items below shipped. See [TESTING.md](TESTING.md). Remaining follow-u
 | Item | Tool | Delivered |
 |---|---|---|
 | Local dev with real headers + Functions | `wrangler pages dev` (HTTPS) | `npm run dev` |
-| Unit tests for edge code | Vitest (plain Node; the edge code uses only Web APIs) | 70 tests |
-| End-to-end tests across browsers and viewports | Playwright | 143 tests × 5 browser/device projects |
+| Unit tests for edge code | Vitest (plain Node; the edge code uses only Web APIs) | 70 tests (114 as of 1.4.0) |
+| End-to-end tests across browsers and viewports | Playwright | 143 tests × 5 browser/device projects (160 as of 1.4.0) |
 | Accessibility | `@axe-core/playwright` | 0 serious/critical on every page |
 | Performance / SEO budgets | Lighthouse CI | 100/100/100/100 baseline |
 | HTML and link validation | html-validate; link crawl in Playwright + build gate | Valid on all pages |
@@ -144,4 +148,7 @@ Goal: visitors can try prototypes built with Claude Code, with **4–5 free runs
 | 2026-11-24 | Test locally over HTTPS | WebKit applies `upgrade-insecure-requests` to localhost; HTTPS keeps the test CSP identical to production |
 | 2026-11-24 | Drop `Content-Signal` from robots.txt | Non-standard; failed validators. Per-crawler rules + Cloudflare policy already enforce the training opt-out |
 | 2026-11-24 | Vitest in plain Node, not the Workers pool | Edge code uses only Web-standard APIs; simpler and faster. Revisit when prototypes use KV/D1/Durable Objects |
+| 2026-11-26 | Build the PII encryption layer before any PII is stored | Retro-fitting encryption onto stored data is harder and riskier than starting encrypted; v2.0 trial accounts will need it |
+| 2026-11-26 | Keep the resume's email/phone public | Owner decision: it is a resume meant for recruiters, so the contact details stay public. Encrypting a public download would be meaningless |
+| 2026-11-26 | Allow `'self'` in `connect-src` | Cloudflare Web Analytics posts to `/cdn-cgi/rum` on the site's own origin |
 | 2026-11-24 | Keep Bot Fight Mode's inline JS check blocked | Allowing it would need nonces plus a Trusted Types exception; Bot Fight Mode works without it |

@@ -90,6 +90,29 @@ If you later set up email on the domain, replace the SPF, DMARC and MX records w
 Use 2FA (security key or authenticator app) on Cloudflare, GitHub and the domain registrar. Enable
 GitHub's secret scanning and Dependabot alerts on the repository (Settings → Code security).
 
+## Smoke test and bot protection
+
+`.github/workflows/smoke.yml` runs `scripts/smoke.sh` in two situations:
+
+- **After every push to `main`:** it polls `/version.json` until the live site reports the pushed
+  commit, so it tests the new deploy rather than the old one, then runs 44 live checks. If the
+  commit isn't live within 15 minutes, the run fails with "Commit … was not live", which usually
+  means the Cloudflare build failed.
+- **Daily at 08:47 IST.**
+
+Each failed check appears as an annotation on the run.
+
+**Cloudflare Bot Fight Mode challenges many data-centre IPs, including GitHub's runners.** If it
+blocks the smoke test, the run fails with one clear message: "Cloudflare is challenging this machine
+as a bot". Bot Fight Mode can't be bypassed with WAF skip rules. Options:
+
+1. Run the smoke test from your Mac (`npm run smoke`). It is unaffected.
+2. Replace Bot Fight Mode with a WAF rate-limiting rule plus the AI crawler policy. These allow a
+   skip rule for the runner's user agent and path.
+
+`version.json` also answers "what's live?" at any time:
+`curl -s https://jayantgoswami.com/version.json`
+
 ## Recurring tasks
 
 | When | Task |
@@ -97,6 +120,8 @@ GitHub's secret scanning and Dependabot alerts on the repository (Settings → C
 | Every November | Renew `Expires` in `public/.well-known/security.txt` (and in Cloudflare's Security.txt if used) |
 | Quarterly | Re-run securityheaders.com / Observatory; review Security → Events and a sample of CSP reports |
 | On each resume update | Replace the PDF and keep the filename; the build re-scans it |
+| On each photo update | Replace the master JPEG, run `npm run images`, commit the outputs |
+| Yearly (if PII is stored) | Rotate `PII_KEYRING` (SECURITY.md → Personal data) |
 | Yearly | Review the `robots.txt` AI crawler list against Cloudflare's AI crawler directory |
 
 ## Incident runbooks

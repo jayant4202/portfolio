@@ -1,6 +1,6 @@
 {
   "name": "jayantgoswami-portfolio",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "private": true,
   "description": "Source for jayantgoswami.com. Dev tooling only: nothing here ships to visitors.",
   "type": "module",
@@ -20,13 +20,15 @@
     "lint:sh": "shellcheck build.sh scripts/*.sh .githooks/pre-commit",
     "lighthouse": "npm run build:local && lhci autorun",
     "smoke": "bash scripts/smoke.sh https://jayantgoswami.com",
-    "check": "npm run lint && npm run test"
+    "check": "npm run lint && npm run test",
+    "images": "node scripts/optimize-images.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",
     "@lhci/cli": "^0.16.1",
     "@playwright/test": "^1.65.1",
     "html-validate": "^11.21.1",
+    "sharp": "^0.35.5",
     "vitest": "^5.1.1",
     "wrangler": "^4.168.0"
   }

@@ -110,3 +110,20 @@ test("Google Search Console verification file answers 200 at its exact URL (no r
   expect(res.status()).toBe(200);
   expect(await res.text()).toBe("google-site-verification: google8b0f2db1d47e57ef.html");
 });
+
+test("fingerprinted assets are cached for a year; video and PDFs for a day", async ({ request }) => {
+  const html = await (await request.get("/about.html")).text();
+  for (const re of [/\/assets\/css\/style\.css\?v=\d+/, /\/assets\/js\/main\.js\?v=\d+/, /\/assets\/img\/jayant-goswami-avatar\.avif\?v=\d+/]) {
+    const url = html.match(re)[0];
+    expect((await request.get(url)).headers()["cache-control"], url).toBe("public, max-age=31536000, immutable");
+  }
+  for (const url of ["/assets/video/campaigncrafter-demo.mp4", "/assets/Jayant-Goswami-Resume.pdf"]) {
+    expect((await request.head(url)).headers()["cache-control"], url).toBe("public, max-age=86400");
+  }
+});
+
+test("version.json identifies the deployed build", async ({ request }) => {
+  const v = await (await request.get("/version.json")).json();
+  expect(v.commit).toMatch(/^([0-9a-f]{7,40}|local|unknown)$/);
+  expect(Date.parse(v.built_at)).not.toBeNaN();
+});

@@ -16,7 +16,7 @@ SITE_URL="${SITE_URL:-}"
 OUT="${OUT:-dist}"
 MAX_FILE_MB=25
 # The only outside addresses the site may point to. Add one here deliberately if you ever need it.
-ALLOWED_EXTERNAL='^(https://www\.linkedin\.com/in/jayant-goswami/|https://schema\.org)$'
+ALLOWED_EXTERNAL='^(https://www\.linkedin\.com/in/jayant-goswami/|https://github\.com/jayant4202|https://schema\.org)$'
 
 fail() { echo "BUILD FAILED: $*" >&2; exit 1; }
 
@@ -33,6 +33,12 @@ rm -rf "${OUT:?}"
 mkdir -p "$OUT"
 cp -R public/. "$OUT/"
 find "$OUT" -name '.DS_Store' -delete
+
+# 1b. Build stamp: which commit is live. The post-deploy smoke test waits for this to match the pushed
+#     commit before checking the site. (The repository is public, so the commit ID reveals nothing new.)
+COMMIT="${CF_PAGES_COMMIT_SHA:-${GITHUB_SHA:-local}}"
+[[ "$COMMIT" =~ ^[0-9a-f]{7,40}$|^local$ ]] || COMMIT="unknown"
+printf '{"commit":"%s","built_at":"%s"}\n' "$COMMIT" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$OUT/version.json"
 
 # 2. Put the real domain into page links, link previews, sitemap and robots.txt.
 while IFS= read -r f; do
@@ -61,7 +67,7 @@ for media in $(cd "$OUT" && find assets -type f \( -name '*.mp4' -o -name '*.web
   stamp "$media" $HTML_FILES
 done
 for asset in $(cd "$OUT" && find assets/css assets/js -type f | sed 's#^#/#'); do stamp "$asset" $HTML_FILES; done
-unstamped=$(grep -hoE '(href|src)="/assets/[^"]+"' $HTML_FILES | grep -v '?v=' | sort -u || true)
+unstamped=$(grep -hoE '(href|src|poster)="/assets/[^"]+"' $HTML_FILES | grep -v '?v=' | sort -u || true)
 [[ -z "$unstamped" ]] || fail "asset links without a cache fingerprint (file names with spaces or special characters?):
 $unstamped"
 
@@ -111,9 +117,19 @@ while IFS= read -r ref; do
   [[ -z "$path" ]] && continue
   [[ "$path" == */ ]] && path="${path}index.html"
   [[ -e "$OUT$path" ]] || missing+="$ref"$'\n'
-done < <(grep -hoE '(href|src)="/[^"]*"' $HTML_FILES | sed -E 's/^[a-z]+="//; s/"$//' | sort -u)
+done < <(grep -hoE '(href|src|poster)="/[^"]*"' $HTML_FILES | sed -E 's/^[a-z]+="//; s/"$//' | sort -u)
 [[ -z "$missing" ]] || fail "broken internal links:
 $missing"
+
+# 5b. Responsive images: every candidate in a srcset must exist and carry a cache fingerprint.
+srcset_bad=""
+while IFS= read -r ref; do
+  [[ "$ref" == /* ]] || continue   # data: placeholders and their base64 tail are not site paths
+  [[ "$ref" == *"?v="* ]] || srcset_bad+="unfingerprinted: $ref"$'\n'
+  [[ -e "$OUT${ref%%\?*}" ]] || srcset_bad+="missing: $ref"$'\n'
+done < <(grep -hoE 'srcset="[^"]*"' $HTML_FILES | sed -E 's/^srcset="//; s/"$//' | tr ',' '\n' | awk '{print $1}' | sort -u)
+[[ -z "$srcset_bad" ]] || fail "bad srcset image references:
+$srcset_bad"
 
 # 6. Downloads: no active content in PDFs, nothing over the host's file-size limit.
 while IFS= read -r pdf; do
