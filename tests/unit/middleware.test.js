@@ -172,6 +172,35 @@ describe("host and path policy", () => {
   });
 });
 
+describe("search-engine verification file", () => {
+  it("is served directly (200) instead of following the .html redirect", async () => {
+    const fetched = [];
+    const e = env({
+      ASSETS: {
+        fetch: async (r) => {
+          fetched.push(new URL(r.url).pathname);
+          return new Response("google-site-verification: google8b0f2db1d47e57ef.html");
+        },
+      },
+    });
+    const next = vi.fn(async () => new Response(null, { status: 308, headers: { location: "/google8b0f2db1d47e57ef" } }));
+    const res = await run(req("https://jayantgoswami.com/google8b0f2db1d47e57ef.html"), next, e);
+    expect(res.status).toBe(200);
+    expect(await res.text()).toContain("google-site-verification");
+    expect(next).not.toHaveBeenCalled();
+    expect(fetched).toEqual(["/google8b0f2db1d47e57ef"]);
+  });
+
+  it.each(["/google.html", "/googleXYZ.html", "/x/google8b0f2db1d47e57ef.html", "/google8b0f2db1d47e57ef.html.bak"])(
+    "does not special-case %s",
+    async (p) => {
+      const next = vi.fn(async () => page());
+      await run(req(`https://jayantgoswami.com${p}`), next);
+      expect(next).toHaveBeenCalledOnce();
+    },
+  );
+});
+
 describe("failure handling", () => {
   it("falls back to the asset store when next() throws", async () => {
     const res = await run(req("https://jayantgoswami.com/"), async () => { throw new Error("boom"); });

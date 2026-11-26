@@ -31,6 +31,7 @@ Status: ✅ live · 🧪 in progress · 💤 parked · ❌ removed
 | Quality | CI on every push; post-deploy and daily smoke tests; Dependabot | ✅ | 1.3.0 | `.github/` |
 | Quality | Pre-commit hook: secret scan + release gate | ✅ | Unreleased | `.githooks/pre-commit` |
 | Docs | Mac setup guide | ✅ | Unreleased | `docs/SETUP.md` |
+| SEO | Google Search Console verification | ✅ | Unreleased | `public/google8b0f2db1d47e57ef.html` |
 | Demo | Live AI spend categoriser | ❌ | 1.0.0–1.1.0 | removed |
 
 ### Content inventory

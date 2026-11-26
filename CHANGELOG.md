@@ -21,6 +21,9 @@ deploy.
   maintenance, covering account security, update cadence and troubleshooting.
 - `.githooks/pre-commit`: blocks commits that contain secrets (gitleaks) or fail the release gate.
   Works from GitHub Desktop. Enable with `git config core.hooksPath .githooks`.
+- Google Search Console ownership file `/google8b0f2db1d47e57ef.html`. The middleware serves Google
+  verification files directly with a 200, bypassing Pages' `.html` → extensionless 308 redirect, which
+  verifiers can reject. Covered by unit and end-to-end tests; excluded from page tests and HTML lint.
 
 ## [1.3.0] - 2026-11-24
 

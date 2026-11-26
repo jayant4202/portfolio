@@ -17,6 +17,9 @@ const ORIGIN_TIMEOUT_MS = 10_000;
 const READ_METHODS = new Set(["GET", "HEAD"]);
 // Fixed same-site path redirects. Targets are relative paths only, so they can never point off-site.
 const PATH_ALIASES = { "/security.txt": "/.well-known/security.txt" };
+// Search-engine ownership files (e.g. Google Search Console) must answer 200 at their exact .html URL.
+// Pages normally 308-redirects /x.html to /x, which verifiers may reject, so serve these directly.
+const VERIFICATION_FILE = /^\/google[0-9a-f]{16}\.html$/;
 
 class TimeoutError extends Error {
   constructor(ms) { super(`origin did not respond within ${ms} ms`); this.name = "TimeoutError"; }
@@ -80,7 +83,12 @@ export async function onRequest(context) {
       response = plain(405, "Method not allowed\n", { Allow: "GET, HEAD" });
     } else {
       const t = Date.now();
-      response = await withTimeout(next(), ORIGIN_TIMEOUT_MS);
+      if (VERIFICATION_FILE.test(url.pathname) && env && env.ASSETS) {
+        const assetUrl = new URL(url.pathname.slice(0, -".html".length), url.origin);
+        response = await withTimeout(env.ASSETS.fetch(new Request(assetUrl, { method: request.method })), ORIGIN_TIMEOUT_MS);
+      } else {
+        response = await withTimeout(next(), ORIGIN_TIMEOUT_MS);
+      }
       originMs = Date.now() - t;
     }
     if (policy.noindex) fields.preview = true;

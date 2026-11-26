@@ -1,0 +1,2 @@
+# Search-engine ownership files are plain-text tokens, not pages.
+dist/google*.html

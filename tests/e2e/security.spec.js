@@ -104,3 +104,9 @@ test("robots.txt keeps search open and opts out of AI training", async ({ reques
   expect(body).toContain("User-agent: GPTBot");
   expect(body).toMatch(/^Sitemap: https?:\/\//m);
 });
+
+test("Google Search Console verification file answers 200 at its exact URL (no redirect)", async ({ request }) => {
+  const res = await request.get("/google8b0f2db1d47e57ef.html", { maxRedirects: 0 });
+  expect(res.status()).toBe(200);
+  expect(await res.text()).toBe("google-site-verification: google8b0f2db1d47e57ef.html");
+});

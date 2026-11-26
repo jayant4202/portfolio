@@ -8,7 +8,7 @@ export function allPages() {
     for (const name of readdirSync(dir)) {
       const full = join(dir, name);
       if (statSync(full).isDirectory()) { if (name !== "assets") walk(full); continue; }
-      if (!name.endsWith(".html") || name === "404.html" || name.startsWith("_")) continue;
+      if (!name.endsWith(".html") || name === "404.html" || name.startsWith("_") || /^google[0-9a-f]+\.html$/.test(name)) continue;
       out.push("/" + relative("dist", full).replace(/\\/g, "/"));
     }
   };
