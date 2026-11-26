@@ -78,9 +78,10 @@ openssl.
 
 ## The build is the release gate
 
-`build.sh` copies `public/` to `dist/`, injects the real domain, and fingerprints every asset reference
-(CSS, JS, images, video, PDFs) with a hash of the file *and* of `_headers`, so header changes reach
-Cloudflare-cached files too. It adds Subresource Integrity hashes to every stylesheet and
+`build.sh` copies `public/` to `dist/` and injects the real domain. It copies every CSS, JS and image
+file to a **content-hashed filename** (`/assets/h/style.<hash>.css`) and points every page at it. The
+hash also covers `_headers`, so header changes reach Cloudflare-cached files too. Video and PDFs get a
+`?v=` stamp instead. It adds Subresource Integrity hashes to every stylesheet and
 script. It then **refuses to produce output** if any of these checks fail:
 
 | Check | Prevents |

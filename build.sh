@@ -48,12 +48,35 @@ if grep -rlI 'YOUR-DOMAIN' "$OUT"; then fail "placeholder domain still present i
 
 HTML_FILES=$(find "$OUT" -name '*.html')
 
-# 2b. Cache-busting: stamp every asset reference (CSS, JS, images, video, PDFs) with a fingerprint.
-#     The fingerprint covers the file's contents AND public/_headers: Cloudflare's cache keeps the
-#     headers a file was first cached with, so a header change must also produce new asset URLs, or
-#     unchanged files would keep serving old security headers indefinitely.
+# 2b. Cache-busting with content-addressed filenames.
+#
+#     CSS, JS and images are copied to /assets/h/<name>.<hash>.<ext> and every reference is rewritten
+#     to that copy. Only these hashed files are cached for a year (immutable, see _headers). The hash
+#     makes that safe: a URL always means exactly one version of a file.
+#
+#     Why not a ?v= query string: Cloudflare Pages ignores query strings, so an old URL can return
+#     new bytes (and a new URL old bytes, while a deploy is still propagating). With integrity checks
+#     on CSS/JS, that mismatch makes the browser drop the stylesheet, and a year-long cache would pin
+#     the broken copy. With hashed filenames, a file that isn't there yet is a 404 (never cached), and
+#     the next load succeeds.
+#
+#     The hash also covers public/_headers: Cloudflare keeps the headers a file was first cached with,
+#     so a header change must produce new URLs. Video and PDFs are large and linked directly from
+#     elsewhere, so they keep their names and a ?v= stamp with a 1-day cache.
 HEADERS_SUM=$(cksum < public/_headers | cut -d' ' -f1)
-stamp() { # stamp <asset path> <files to rewrite...>
+mkdir -p "$OUT/assets/h"
+fingerprint() { # fingerprint <asset path> <files to rewrite...>
+  local asset=$1; shift
+  [[ -f "$OUT$asset" ]] || return 0
+  local h; h=$( { cat "$OUT$asset"; echo "$HEADERS_SUM"; } | openssl dgst -sha256 | awk '{print $NF}' | cut -c1-12)
+  local file=${asset##*/}
+  local target="/assets/h/${file%.*}.${h}.${file##*.}"
+  cp "$OUT$asset" "$OUT$target"
+  local f; for f in "$@"; do
+    sed -i.bak -E "s#${asset//./\\.}([\" ),])#${target}\1#g" "$f" && rm -f "$f.bak"
+  done
+}
+stamp() { # stamp <asset path> <files to rewrite...>  (query-string version, for video and PDFs)
   local asset=$1; shift
   [[ -f "$OUT$asset" ]] || return 0
   local v; v=$( { cat "$OUT$asset"; echo "$HEADERS_SUM"; } | cksum | cut -d' ' -f1)
@@ -62,24 +85,29 @@ stamp() { # stamp <asset path> <files to rewrite...>
   done
 }
 CSS_FILES=$(find "$OUT/assets/css" -name '*.css' 2>/dev/null || true)
-for img in $(cd "$OUT" && find assets/img -type f | sed 's#^#/#'); do stamp "$img" $HTML_FILES $CSS_FILES; done
+# Images first (CSS references them), then CSS/JS, so each hash covers the final file contents.
+for img in $(cd "$OUT" && find assets/img -type f | sed 's#^#/#'); do fingerprint "$img" $HTML_FILES $CSS_FILES; done
+for asset in $(cd "$OUT" && find assets/css assets/js -type f | sed 's#^#/#'); do fingerprint "$asset" $HTML_FILES; done
 for media in $(cd "$OUT" && find assets -type f \( -name '*.mp4' -o -name '*.webm' -o -name '*.pdf' \) | sed 's#^#/#'); do
   stamp "$media" $HTML_FILES
 done
-for asset in $(cd "$OUT" && find assets/css assets/js -type f | sed 's#^#/#'); do stamp "$asset" $HTML_FILES; done
-unstamped=$(grep -hoE '(href|src|poster)="/assets/[^"]+"' $HTML_FILES | grep -v '?v=' | sort -u || true)
-[[ -z "$unstamped" ]] || fail "asset links without a cache fingerprint (file names with spaces or special characters?):
+unhashed=$(grep -hoE '(href|src|poster|content)="[^"]*/assets/(css|js|img)/[^"]*"' $HTML_FILES $CSS_FILES | sort -u || true)
+unhashed+=$(grep -hoE 'url\([^)]*/assets/(css|js|img)/[^)]*\)' $CSS_FILES | sort -u || true)
+[[ -z "$unhashed" ]] || fail "asset references not rewritten to /assets/h/ (file names with spaces or special characters?):
+$unhashed"
+unstamped=$(grep -hoE '(href|src|poster)="/assets/[^"]+"' $HTML_FILES | grep -vE '^[a-z]+="/assets/h/' | grep -v '?v=' | sort -u || true)
+[[ -z "$unstamped" ]] || fail "asset links without a cache fingerprint:
 $unstamped"
 
 # 2c. Subresource Integrity: browsers refuse a stylesheet or script whose bytes don't match the hash
 #     baked into the page, so a tampered or corrupted file can never run.
-for asset in $(cd "$OUT" && find assets/css assets/js -type f \( -name '*.css' -o -name '*.js' \) | sed 's#^#/#'); do
+for asset in $(cd "$OUT" && find assets/h -type f \( -name '*.css' -o -name '*.js' \) | sed 's#^#/#'); do
   sri="sha384-$(openssl dgst -sha384 -binary "$OUT$asset" | openssl base64 -A)"
   for f in $HTML_FILES; do
-    sed -i.bak -E "s#((href|src)=\"${asset//./\\.}\?v=[0-9]+\")#\1 integrity=\"${sri}\"#g" "$f" && rm -f "$f.bak"
+    sed -i.bak -E "s#((href|src)=\"${asset//./\\.}\")#\1 integrity=\"${sri}\"#g" "$f" && rm -f "$f.bak"
   done
 done
-missing_sri=$(grep -hoE '<(script|link)[^>]*(src|href)="/assets/(css|js)/[^"]*"[^>]*>' $HTML_FILES | grep -v 'integrity="sha384-' || true)
+missing_sri=$(grep -hoE '<(script|link)[^>]*(src|href)="/assets/[^"]*\.(css|js)"[^>]*>' $HTML_FILES | grep -v 'integrity="sha384-' || true)
 [[ -z "$missing_sri" ]] || fail "stylesheet or script without an integrity hash:
 $missing_sri"
 
@@ -121,11 +149,11 @@ done < <(grep -hoE '(href|src|poster)="/[^"]*"' $HTML_FILES | sed -E 's/^[a-z]+=
 [[ -z "$missing" ]] || fail "broken internal links:
 $missing"
 
-# 5b. Responsive images: every candidate in a srcset must exist and carry a cache fingerprint.
+# 5b. Responsive images: every candidate in a srcset must exist and be a content-hashed file.
 srcset_bad=""
 while IFS= read -r ref; do
   [[ "$ref" == /* ]] || continue   # data: placeholders and their base64 tail are not site paths
-  [[ "$ref" == *"?v="* ]] || srcset_bad+="unfingerprinted: $ref"$'\n'
+  [[ "$ref" == /assets/h/* ]] || srcset_bad+="not content-hashed: $ref"$'\n'
   [[ -e "$OUT${ref%%\?*}" ]] || srcset_bad+="missing: $ref"$'\n'
 done < <(grep -hoE 'srcset="[^"]*"' $HTML_FILES | sed -E 's/^srcset="//; s/"$//' | tr ',' '\n' | awk '{print $1}' | sort -u)
 [[ -z "$srcset_bad" ]] || fail "bad srcset image references:

@@ -16,17 +16,21 @@
   X-Permitted-Cross-Domain-Policies: none
   Origin-Agent-Cluster: ?1
 
-# Caching. CSS, JS and images are always linked with a content fingerprint (?v=…, added by build.sh),
-# so a changed file always has a new URL: browsers may keep them for a year without re-checking.
-# Video and PDFs keep a 1-day cache because people link to them directly, without a fingerprint.
-/assets/css/*
+# Caching. build.sh copies every CSS, JS and image file to /assets/h/<name>.<content-hash>.<ext> and
+# points all pages there. A hashed URL always means exactly one version of a file, so browsers may
+# keep it for a year without re-checking. The original paths stay available for direct links, with
+# a normal 1-day cache. Video and PDFs (linked directly from elsewhere) also use a 1-day cache.
+/assets/h/*
   Cache-Control: public, max-age=31536000, immutable
+
+/assets/css/*
+  Cache-Control: public, max-age=86400
 
 /assets/js/*
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: public, max-age=86400
 
 /assets/img/*
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: public, max-age=86400
 
 /assets/video/*
   Cache-Control: public, max-age=86400

@@ -16,6 +16,32 @@ deploy.
 
 ## [Unreleased]
 
+## [1.4.1] - 2026-11-26
+
+Hotfix: the site could render unstyled in a browser after the 1.4.0 deploy.
+
+### Fixed
+- **Unstyled pages after a deploy (seen in Safari).**
+  - *Cause:* Cloudflare Pages ignores `?v=` query strings. While 1.4.0 propagated, a browser could get
+    the new page with the old stylesheet. The integrity check (SRI) correctly refused it, and
+    1.4.0's new one-year `immutable` cache kept the refused copy, so reloading didn't help.
+  - *Fix:* CSS, JS and images are now served from content-hashed filenames
+    (`/assets/h/style.<hash>.css`). A URL can only ever return one version. A file that isn't there
+    yet is an uncached 404, never wrong bytes.
+  - *Caching:* only `/assets/h/*` keeps the one-year cache. Original paths, video and PDFs are back
+    to one day.
+- **Self-healing:** if the stylesheet ever fails to load (for example during a deploy), the page
+  reloads itself once. A per-tab guard prevents loops.
+
+### Added
+- Build gate: fails if any page, stylesheet or `srcset` still references an unhashed CSS, JS or
+  image path.
+- Tests:
+  - every CSS, JS and image URL is content-hashed and cached for a year
+  - original paths keep a 1-day cache
+  - a missing hashed file is an uncached 404
+  - recovery reloads once, then stops (no loop)
+
 ## [1.4.0] - 2026-11-26
 
 Profile icons, PII protection, speed and image loading, and bug fixes.
@@ -201,7 +227,8 @@ Security sanity pass on the live site.
 - Strict CSP and security headers, plus a build-time gate covering link allow-list, PDF safety,
   internal links, inline code and file-size limits.
 
-[Unreleased]: https://github.com/jayant4202/portfolio/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/jayant4202/portfolio/compare/v1.4.1...HEAD
+[1.4.1]: https://github.com/jayant4202/portfolio/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/jayant4202/portfolio/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/jayant4202/portfolio/compare/v1.2.1...v1.3.0
 [1.2.1]: https://github.com/jayant4202/portfolio/compare/v1.2.0...v1.2.1

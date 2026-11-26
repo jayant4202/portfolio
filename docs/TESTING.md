@@ -17,7 +17,7 @@ on GitHub for every push and pull request.
 | Code security | Semgrep (CI) | No high-severity patterns in edge or browser JS | CI only |
 | Production | `scripts/smoke.sh` | 44 live checks: headers, TLS, redirects, private files, certificate and security.txt expiry | `npm run smoke` |
 
-Current baseline (2026-11-26, v1.4.0): 114/114 unit, 160/160 end-to-end (intentional
+Current baseline (2026-11-26, v1.4.1): 114/114 unit, 172/172 end-to-end (intentional
 single-browser checks skipped elsewhere), HTML valid, Lighthouse 100/100/100/100 on every page
 (21–32 KB per page), smoke 44/44, `npm audit` 0 vulnerabilities.
 

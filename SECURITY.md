@@ -54,8 +54,8 @@ PDFs under `/assets/docs/` and the resume drop the page CSP so the browser's bui
 works. The resume is served with `Content-Disposition: attachment`.
 
 **Cached assets and header changes:** Cloudflare caches assets with the headers they had when first
-cached. The build therefore includes `_headers` in every asset fingerprint, so changing a header
-changes every asset URL and no stale headers survive a deploy.
+cached. The build therefore includes `_headers` in every content hash (`/assets/h/<name>.<hash>.<ext>`),
+so changing a header changes every asset URL and no stale headers survive a deploy.
 
 HSTS `preload` is intentionally not set. Preload-list inclusion is hard to reverse and commits
 every future subdomain to HTTPS. Revisit once the domain setup is final.

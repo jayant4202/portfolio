@@ -115,10 +115,10 @@ test.describe("media and downloads", () => {
     await page.waitForTimeout(300);
     const photos = images.filter((u) => u.includes("jayant-goswami"));
     expect(photos.length).toBeGreaterThan(0);
-    expect(photos.every((u) => /\.avif\?v=/.test(u)), photos.join("\n")).toBe(true);
+    expect(photos.every((u) => /\/assets\/h\/[^/]+\.[0-9a-f]{12}\.avif$/.test(new URL(u).pathname + "")), photos.join("\n")).toBe(true);
     const mobile = testInfo.project.name.startsWith("mobile");
     // Phones show the small avatar; desktop shows the large photo. Never both.
-    expect(photos.some((u) => u.includes("-720.avif") || u.includes("-360.avif"))).toBe(!mobile);
+    expect(photos.some((u) => /jayant-goswami-(720|360)\.[0-9a-f]{12}\.avif/.test(u)), photos.join("\n")).toBe(!mobile);
   });
 
   test("resume downloads as a real PDF attachment", async ({ page, request }) => {
@@ -133,7 +133,7 @@ test.describe("media and downloads", () => {
 
   test("a broken profile photo falls back to initials", async ({ page }) => {
     // Block every format (AVIF, WebP, JPEG): the browser uses whichever <picture> picks.
-    await page.route(/jayant-goswami-avatar\.(avif|webp|jpg)/, (r) => r.abort());
+    await page.route(/jayant-goswami-avatar\.([0-9a-f]{12}\.)?(avif|webp|jpg)/, (r) => r.abort());
     await page.goto("/");
     await expect(page.locator(".brand-mark img")).toBeHidden();
     await expect(page.locator(".brand-mark")).toBeVisible();
@@ -203,5 +203,29 @@ test.describe("profile icons in the header", () => {
     await expect(page.locator('main a[href="https://www.linkedin.com/in/jayant-goswami/"]').first()).toBeVisible();
     await expect(page.locator('footer a[href="https://www.linkedin.com/in/jayant-goswami/"]')).toHaveCount(1);
     await expect(page.locator('.nav-links .nav-mobile-only a[href="https://www.linkedin.com/in/jayant-goswami/"]')).toHaveCount(1);
+  });
+});
+
+test.describe("stylesheet recovery", () => {
+  test("if the stylesheet fails once, the page reloads itself and comes back styled", async ({ page }) => {
+    let failures = 0;
+    await page.route(/\/assets\/h\/style\.[0-9a-f]{12}\.css/, (r) => {
+      if (failures++ === 0) return r.fulfill({ status: 404, body: "" });
+      return r.continue();
+    });
+    await page.goto("/");
+    await expect.poll(() => page.evaluate(() => getComputedStyle(document.body).backgroundColor), { timeout: 10_000 })
+      .toBe("rgb(11, 15, 23)");
+    expect(failures).toBe(2);
+  });
+
+  test("if the stylesheet keeps failing, it reloads only once (no loop)", async ({ page }) => {
+    let loads = 0; // main-frame navigations to the site (Firefox also fires "load" for about:blank)
+    page.on("framenavigated", (f) => { if (f === page.mainFrame() && f.url().startsWith("https:")) loads++; });
+    await page.route(/\/assets\/h\/style\.[0-9a-f]{12}\.css/, (r) => r.fulfill({ status: 404, body: "" }));
+    await page.goto("/");
+    await page.waitForTimeout(5_000);
+    expect(loads).toBe(2);
+    await expect(page.locator("main")).toBeVisible();
   });
 });

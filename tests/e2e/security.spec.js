@@ -111,15 +111,27 @@ test("Google Search Console verification file answers 200 at its exact URL (no r
   expect(await res.text()).toBe("google-site-verification: google8b0f2db1d47e57ef.html");
 });
 
-test("fingerprinted assets are cached for a year; video and PDFs for a day", async ({ request }) => {
+test("pages load CSS, JS and images only from content-hashed URLs, cached for a year", async ({ request }) => {
   const html = await (await request.get("/about.html")).text();
-  for (const re of [/\/assets\/css\/style\.css\?v=\d+/, /\/assets\/js\/main\.js\?v=\d+/, /\/assets\/img\/jayant-goswami-avatar\.avif\?v=\d+/]) {
-    const url = html.match(re)[0];
-    expect((await request.get(url)).headers()["cache-control"], url).toBe("public, max-age=31536000, immutable");
+  const refs = [...html.matchAll(/(?:href|src|srcset)="(\/assets\/[^"]+)"/g)].flatMap((m) => m[1].split(",").map((s) => s.trim().split(" ")[0]));
+  const local = refs.filter((r) => /\.(css|js|avif|webp|jpg|png|svg)$/.test(r));
+  expect(local.length).toBeGreaterThan(5);
+  for (const url of local) {
+    expect(url, "must be content-hashed").toMatch(/^\/assets\/h\/[^/]+\.[0-9a-f]{12}\.[a-z0-9]+$/);
+    expect((await request.head(url)).headers()["cache-control"], url).toBe("public, max-age=31536000, immutable");
   }
-  for (const url of ["/assets/video/campaigncrafter-demo.mp4", "/assets/Jayant-Goswami-Resume.pdf"]) {
+});
+
+test("original asset paths, video and PDFs keep a 1-day cache", async ({ request }) => {
+  for (const url of ["/assets/css/style.css", "/assets/img/og-image.jpg", "/assets/video/campaigncrafter-demo.mp4", "/assets/Jayant-Goswami-Resume.pdf"]) {
     expect((await request.head(url)).headers()["cache-control"], url).toBe("public, max-age=86400");
   }
+});
+
+test("a hashed URL that doesn't exist yet is a 404 that is never cached", async ({ request }) => {
+  const res = await request.get("/assets/h/style.000000000000.css");
+  expect(res.status()).toBe(404);
+  expect(res.headers()["cache-control"] || "").not.toContain("immutable");
 });
 
 test("version.json identifies the deployed build", async ({ request }) => {

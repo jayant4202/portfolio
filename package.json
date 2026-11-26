@@ -1,6 +1,6 @@
 {
   "name": "jayantgoswami-portfolio",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "private": true,
   "description": "Source for jayantgoswami.com. Dev tooling only: nothing here ships to visitors.",
   "type": "module",

@@ -3,7 +3,7 @@
 The living reference for **what the site does today** and **where it's going**. Update it in the
 same commit as any change it describes. Version history lives in [CHANGELOG.md](../CHANGELOG.md).
 
-_Last reviewed: 2026-11-26 · Current version: 1.4.0_
+_Last reviewed: 2026-11-26 · Current version: 1.4.1_
 
 ## 1. Feature register (what's live)
 
@@ -148,6 +148,7 @@ Goal: visitors can try prototypes built with Claude Code, with **4–5 free runs
 | 2026-11-24 | Test locally over HTTPS | WebKit applies `upgrade-insecure-requests` to localhost; HTTPS keeps the test CSP identical to production |
 | 2026-11-24 | Drop `Content-Signal` from robots.txt | Non-standard; failed validators. Per-crawler rules + Cloudflare policy already enforce the training opt-out |
 | 2026-11-24 | Vitest in plain Node, not the Workers pool | Edge code uses only Web-standard APIs; simpler and faster. Revisit when prototypes use KV/D1/Durable Objects |
+| 2026-11-26 | Content-hashed asset filenames instead of `?v=` (v1.4.1) | Pages ignores query strings; with SRI and a long cache, a deploy race left a browser unstyled. Hashed names make each URL immutable by construction |
 | 2026-11-26 | Build the PII encryption layer before any PII is stored | Retro-fitting encryption onto stored data is harder and riskier than starting encrypted; v2.0 trial accounts will need it |
 | 2026-11-26 | Keep the resume's email/phone public | Owner decision: it is a resume meant for recruiters, so the contact details stay public. Encrypting a public download would be meaningless |
 | 2026-11-26 | Allow `'self'` in `connect-src` | Cloudflare Web Analytics posts to `/cdn-cgi/rum` on the site's own origin |

@@ -89,6 +89,24 @@
     links.addEventListener("click", function (e) { if (e.target.closest("a")) set(false); });
   });
 
+  /* ---------- Stylesheet recovery ----------
+     If the stylesheet failed to load (e.g. a visitor arrives in the seconds while a new deploy is
+     still reaching their Cloudflare data centre), reload once, shortly after. A per-tab flag keyed to
+     the stylesheet URL prevents loops; a later successful load clears it. */
+  safely("css-recovery", function () {
+    var link = document.querySelector('link[rel="stylesheet"]');
+    if (!link) return;
+    var key = "css-retry:" + link.getAttribute("href");
+    function loaded() { try { return !!(link.sheet && link.sheet.cssRules.length); } catch (e) { return true; } }
+    function check() {
+      if (loaded()) { try { sessionStorage.removeItem(key); } catch (e) { /* storage blocked */ } return; }
+      var tried = false;
+      try { tried = sessionStorage.getItem(key) === "1"; sessionStorage.setItem(key, "1"); } catch (e) { tried = true; }
+      if (!tried) setTimeout(function () { location.reload(); }, 1500);
+    }
+    if (document.readyState === "complete") check(); else window.addEventListener("load", check);
+  });
+
   /* ---------- Footer year ---------- */
   safely("year", function () {
     document.querySelectorAll("[data-year]").forEach(function (el) { el.textContent = new Date().getFullYear(); });

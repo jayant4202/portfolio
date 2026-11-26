@@ -100,10 +100,17 @@ best-effort, the page is not. The security headers are still applied on the fall
 holds even with JavaScript disabled. `theme.js` is render-blocking on purpose: it's tiny and it
 avoids a flash of the wrong theme. "System" defers to `prefers-color-scheme`.
 
-**Content-addressed asset URLs plus SRI.** `?v=<checksum of file + _headers>` makes every deploy
-cache-coherent despite a 24 h asset cache, for both content and headers. Cloudflare revalidates
-unchanged files by ETag and keeps their original headers, so the headers must be part of the key. SRI makes any byte-level tampering fatal for that asset rather than
-exploitable.
+**Content-hashed asset filenames plus SRI.** Every CSS, JS and image file is served from
+`/assets/h/<name>.<sha256 of file + _headers>.<ext>` with a one-year `immutable` cache. SRI makes any
+byte-level tampering fatal for that asset rather than exploitable.
+
+*Why filenames, not `?v=` query strings (incident, v1.4.0, 2026-11-26).* Cloudflare Pages ignores
+query strings. While a deploy propagated, a browser got the new HTML (new `?v=`) and the old
+stylesheet bytes. SRI then correctly blocked the stylesheet, and the new year-long cache pinned the
+bad copy, so the page stayed unstyled in that browser. With hashed filenames, a URL can only ever
+return one version. A file that hasn't arrived yet is a 404 (`no-store`, never cached), and a
+one-time automatic reload in `main.js` recovers the page. Original paths stay available with a
+1-day cache for direct links.
 
 ## Extending
 
